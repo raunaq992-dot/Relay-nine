@@ -1,0 +1,1807 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Relay Nine — learn JavaScript by repairing a derelict space station. Real code execution, 31 challenges, XP, streaks and timed boss battles.">
+<meta name="color-scheme" content="dark">
+<meta property="og:title" content="Relay Nine">
+<meta property="og:description" content="Learn JavaScript by repairing a derelict space station.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0e1c'/%3E%3Cpath d='M16 5l9 5v12l-9 5-9-5V10z' fill='none' stroke='%23ffb43c' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%234fd1e0'/%3E%3C/svg%3E">
+<style>
+:root{color-scheme:dark;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+html,body{margin:0;height:100%}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<title>Relay Nine</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --void:#0b0e1c; --deck:#141931; --deck2:#1b2142; --deck3:#222a52;
+  --line:#2c3460; --line2:#3b457a;
+  --ink:#e9e9f7; --dim:#969dc4; --dimmer:#6a7099;
+  --amber:#ffb43c; --amber-dk:#c9861f; --cyan:#4fd1e0;
+  --rose:#ff6b81; --lime:#74e6a4; --violet:#a58cff;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --disp:"Chakra Petch","Trebuchet MS",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--void); color:var(--ink);
+  font:400 15px/1.55 var(--body);
+  -webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(1100px 520px at 88% -8%, rgba(79,209,224,.10), transparent 60%),
+    radial-gradient(900px 480px at 4% 104%, rgba(255,180,60,.09), transparent 62%);
+  background-attachment:fixed;
+}
+button{font:inherit;color:inherit;cursor:pointer}
+code{font-family:var(--mono);font-size:.92em;background:rgba(255,255,255,.055);
+  border:1px solid var(--line);border-radius:4px;padding:.06em .32em;color:#ffd79a}
+h1,h2,h3,h4{font-family:var(--disp);font-weight:600;margin:0;text-wrap:balance;letter-spacing:.01em}
+a{color:var(--cyan)}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:3px}
+
+/* ---------- shell ---------- */
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px;padding-block:0 40px}
+
+/* ---------- HUD ---------- */
+.hud{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;
+  background:rgba(11,14,28,.93);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line)}
+.hud-in{max-width:1180px;margin:0 auto;padding:10px 16px;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:9px;margin-right:auto;min-width:0}
+.brand b{font-family:var(--disp);font-weight:700;font-size:17px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink);white-space:nowrap}
+.brand span{font-family:var(--mono);font-size:10.5px;color:var(--dimmer);letter-spacing:.14em;white-space:nowrap}
+.rank{display:flex;align-items:center;gap:9px}
+.rank-badge{width:32px;height:32px;flex:0 0 auto;display:grid;place-items:center;
+  font-family:var(--disp);font-weight:700;font-size:14px;color:var(--void);
+  background:linear-gradient(150deg,var(--amber),var(--amber-dk));
+  clip-path:polygon(50% 0,100% 26%,100% 74%,50% 100%,0 74%,0 26%)}
+.rank-txt{line-height:1.2}
+.rank-txt b{display:block;font-family:var(--disp);font-size:13.5px;font-weight:600}
+.rank-txt span{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.06em}
+.xpbar{width:140px;height:7px;background:var(--deck2);border:1px solid var(--line);border-radius:99px;overflow:hidden}
+.xpbar i{display:block;height:100%;background:linear-gradient(90deg,var(--amber-dk),var(--amber));
+  border-radius:99px;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.chip{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11.5px;
+  letter-spacing:.04em;color:var(--dim);background:var(--deck);border:1px solid var(--line);
+  border-radius:99px;padding:5px 11px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.chip b{color:var(--ink);font-weight:500}
+.chip.hot{border-color:#5a3a1e;color:#ffcd7a;background:#241a10}
+.chip.hot b{color:var(--amber)}
+
+/* ---------- map view ---------- */
+.mast{padding-block:34px 26px;display:grid;gap:22px;
+  grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);align-items:end}
+.mast h1{font-size:clamp(30px,5.4vw,46px);line-height:1.02;letter-spacing:-.01em}
+.mast h1 em{font-style:normal;color:var(--amber)}
+.mast p{margin:12px 0 0;color:var(--dim);max-width:56ch}
+.mission{background:var(--deck);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.mission h4{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dimmer);
+  font-family:var(--mono);font-weight:400;margin-bottom:12px}
+.signal{display:flex;align-items:flex-end;gap:4px;height:46px;margin-bottom:12px}
+.signal i{flex:1;background:var(--deck3);border-radius:2px 2px 0 0;transition:background .4s,box-shadow .4s}
+.signal i.on{background:linear-gradient(180deg,var(--cyan),#2b8fa0);box-shadow:0 0 12px rgba(79,209,224,.4)}
+.mission-row{display:flex;justify-content:space-between;align-items:baseline;
+  font-family:var(--mono);font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+.mission-row b{color:var(--ink);font-weight:500}
+.cta{margin-top:14px;width:100%;border:0;border-radius:9px;padding:11px 14px;
+  font-family:var(--disp);font-weight:600;font-size:14.5px;letter-spacing:.04em;
+  background:linear-gradient(140deg,var(--amber),var(--amber-dk));color:#241603;
+  transition:transform .12s,filter .12s}
+.cta:hover{filter:brightness(1.08)}
+.cta:active{transform:translateY(1px)}
+
+.decks{display:grid;gap:14px;align-items:start;grid-template-columns:repeat(auto-fill,minmax(304px,1fr))}
+.deckcard{background:var(--deck);border:1px solid var(--line);border-radius:12px;
+  padding:16px 17px 14px;display:flex;flex-direction:column;gap:11px;position:relative;
+  transition:border-color .2s,transform .2s}
+.deckcard.open:hover{border-color:var(--line2);transform:translateY(-2px)}
+.deckcard.locked{opacity:.55}
+.deckcard.done{border-color:#2f5c48}
+.dc-top{display:flex;align-items:center;gap:10px}
+.dc-code{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--void);
+  background:var(--dim);border-radius:4px;padding:2px 6px;font-weight:500}
+.deckcard.open .dc-code{background:var(--cyan)}
+.deckcard.done .dc-code{background:var(--lime)}
+.dc-top h3{font-size:17px;flex:1;min-width:0}
+.dc-tag{font-family:var(--mono);font-size:10.5px;color:var(--dimmer);letter-spacing:.06em}
+.dc-blurb{margin:0;font-size:13.5px;color:var(--dim);line-height:1.5}
+.pips{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.pip{width:24px;height:6px;border-radius:2px;background:var(--deck3);border:1px solid var(--line)}
+.pip.solved{background:var(--lime);border-color:var(--lime)}
+.pip.boss{width:14px;height:14px;border-radius:3px;transform:rotate(45deg);
+  border:1px solid var(--line2);background:var(--deck3)}
+.pip.boss.solved{background:var(--amber);border-color:var(--amber)}
+.dc-foot{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;
+  margin-top:auto;padding-top:2px;font-family:var(--mono);font-size:11px;color:var(--dimmer);letter-spacing:.05em}
+.dc-btn{border:1px solid var(--line2);background:var(--deck2);border-radius:7px;
+  padding:6px 12px;font-family:var(--disp);font-size:12.5px;font-weight:600;letter-spacing:.04em;
+  color:var(--ink);transition:background .15s,border-color .15s}
+.dc-btn:hover{background:var(--deck3);border-color:var(--cyan)}
+.dc-btn[disabled]{opacity:.4;cursor:not-allowed}
+.lockmsg{font-family:var(--mono);font-size:11px;color:var(--dimmer)}
+.tasklist{display:grid;gap:2px;margin-top:2px}
+.tasklink{display:flex;align-items:center;gap:9px;width:100%;text-align:left;
+  background:none;border:0;border-radius:6px;padding:6px 8px;font-size:13.5px;color:var(--dim)}
+.tasklink:hover{background:var(--deck2);color:var(--ink)}
+.tasklink .tl-mark{font-family:var(--mono);font-size:11px;width:16px;flex:0 0 auto;text-align:center}
+.tasklink.solved .tl-mark{color:var(--lime)}
+.tasklink.isboss{color:#ffcd7a}
+.tasklink .tl-xp{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--dimmer)}
+.sec-h{font-family:var(--mono);font-size:11px;letter-spacing:.17em;text-transform:uppercase;
+  color:var(--dimmer);margin:30px 0 13px;display:flex;align-items:center;gap:12px}
+.sec-h:after{content:"";flex:1;height:1px;background:var(--line)}
+.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);
+  display:flex;gap:14px;align-items:center;flex-wrap:wrap;
+  font-family:var(--mono);font-size:11px;color:var(--dimmer)}
+.linkbtn{background:none;border:0;color:var(--dimmer);text-decoration:underline;
+  text-underline-offset:3px;font-family:var(--mono);font-size:11px;padding:0}
+.linkbtn:hover{color:var(--rose)}
+</style>
+<style>
+/* ---------- play view ---------- */
+.play-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-block:20px 16px}
+.backbtn{border:1px solid var(--line);background:var(--deck);border-radius:7px;padding:6px 12px;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--dim)}
+.backbtn:hover{border-color:var(--line2);color:var(--ink)}
+.ph-title{min-width:0}
+.ph-title h2{font-size:clamp(20px,3.4vw,27px);line-height:1.1}
+.ph-title .kicker{font-family:var(--mono);font-size:10.5px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--dimmer);display:block;margin-bottom:4px}
+.bosstag{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;
+  color:#241603;background:var(--amber);border-radius:3px;padding:2px 7px;vertical-align:2px;margin-left:8px}
+.timer{margin-left:auto;font-family:var(--mono);font-size:19px;letter-spacing:.04em;
+  color:var(--amber);font-variant-numeric:tabular-nums;border:1px solid #5a3a1e;
+  background:#241a10;border-radius:8px;padding:6px 13px}
+.timer.late{color:var(--rose);border-color:#5c2733;background:#26131a}
+
+.stage{display:grid;gap:16px;grid-template-columns:minmax(0,340px) minmax(0,1fr);align-items:start}
+.panel{background:var(--deck);border:1px solid var(--line);border-radius:12px}
+.panel-h{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--dimmer);padding:12px 16px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:10px}
+.panel-b{padding:14px 16px}
+.story{margin:0 0 14px;font-style:italic;color:var(--dim);font-size:13.5px;
+  border-left:2px solid var(--line2);padding-left:11px}
+.brief{font-size:14px}
+.brief ul{margin:9px 0 0;padding-left:20px}
+.brief li{margin:4px 0}
+.concept{margin-top:14px;padding-top:13px;border-top:1px dashed var(--line)}
+.concept h5{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--cyan);margin:0 0 7px;font-weight:400}
+.concept div{font-size:13.5px;color:var(--dim)}
+.hintbox{margin-top:13px;display:grid;gap:8px}
+.hint{font-size:13px;color:var(--dim);background:var(--deck2);border:1px solid var(--line);
+  border-left:2px solid var(--amber);border-radius:0 7px 7px 0;padding:9px 11px}
+.smallbtn{border:1px solid var(--line);background:var(--deck2);border-radius:7px;
+  padding:7px 11px;font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;color:var(--dim)}
+.smallbtn:hover:not([disabled]){border-color:var(--line2);color:var(--ink)}
+.smallbtn[disabled]{opacity:.35;cursor:not-allowed}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+
+/* ---------- editor ---------- */
+.ed-wrap{position:relative;border-radius:0;overflow:hidden;background:#0a0d1a}
+.ed-scroll{position:relative;height:clamp(230px,38vh,380px);overflow:auto}
+.ed-pre,.ed-ta{
+  margin:0;padding:14px 16px 14px 52px;
+  font:400 13.5px/1.62 var(--mono);
+  white-space:pre-wrap;word-break:break-word;overflow-wrap:break-word;
+  tab-size:2;border:0;min-height:100%;width:100%;display:block;
+}
+.ed-pre{position:absolute;top:0;left:0;right:0;pointer-events:none;color:#d7d9ee;background:transparent}
+.ed-ta{position:relative;background:transparent;color:transparent;caret-color:var(--amber);
+  resize:none;outline:none;z-index:2}
+.ed-ta::selection{background:rgba(79,209,224,.28)}
+.gutter{position:absolute;left:0;top:0;width:40px;min-height:100%;background:#080b16;
+  border-right:1px solid var(--line);z-index:1;padding-top:14px}
+.gutter i{display:block;font:400 13.5px/1.62 var(--mono);color:#454c78;text-align:right;
+  padding-right:9px;font-style:normal;font-variant-numeric:tabular-nums}
+.tok-key{color:#ff9ec0}.tok-str{color:#9ce8b4}.tok-num{color:#ffce7a}
+.tok-com{color:#5a6192;font-style:italic}.tok-fn{color:#7fd6ff}
+.tok-op{color:#c3a6ff}.tok-pun{color:#8d93bb}.tok-bool{color:#ffb43c}
+.ed-bar{display:flex;align-items:center;gap:9px;padding:11px 14px;border-top:1px solid var(--line);
+  background:var(--deck);flex-wrap:wrap}
+.runbtn{border:0;border-radius:8px;padding:9px 20px;font-family:var(--disp);font-weight:700;
+  font-size:14px;letter-spacing:.05em;background:linear-gradient(140deg,var(--lime),#2f9c69);
+  color:#062015;transition:filter .12s,transform .12s}
+.runbtn:hover{filter:brightness(1.08)}
+.runbtn:active{transform:translateY(1px)}
+.runbtn[disabled]{filter:grayscale(.6);opacity:.6;cursor:not-allowed}
+.kbd{font-family:var(--mono);font-size:10.5px;color:var(--dimmer);letter-spacing:.04em}
+.kbd b{color:var(--dim);font-weight:400;border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+
+/* ---------- results ---------- */
+.res{display:grid;gap:9px}
+.res-empty{font-family:var(--mono);font-size:12px;color:var(--dimmer);letter-spacing:.04em}
+.tline{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;padding:7px 10px;
+  border-radius:7px;background:var(--deck2);border:1px solid var(--line)}
+.tline.pass{border-color:#2b5643}
+.tline.fail{border-color:#5c2733}
+.tline .mk{font-family:var(--mono);font-size:12px;flex:0 0 auto;width:14px;text-align:center;line-height:1.5}
+.tline.pass .mk{color:var(--lime)}
+.tline.fail .mk{color:var(--rose)}
+.tline .nm{flex:1;min-width:0}
+.tline .why{display:block;font-family:var(--mono);font-size:12px;color:#ffa8b6;margin-top:4px;
+  word-break:break-word}
+.errbox{border:1px solid #5c2733;background:#1d1220;border-radius:9px;padding:11px 13px;
+  font-family:var(--mono);font-size:12.5px;color:#ffa8b6;white-space:pre-wrap;word-break:break-word}
+.outbox{border:1px solid var(--line);background:#0a0d1a;border-radius:9px;padding:11px 13px;
+  font-family:var(--mono);font-size:12.5px;color:#b9c6e8;white-space:pre-wrap;word-break:break-word;
+  max-height:170px;overflow:auto}
+.won{border:1px solid #2b5643;background:linear-gradient(140deg,#10241c,#0e1a28);
+  border-radius:11px;padding:15px 16px;display:grid;gap:10px}
+.won h3{font-size:19px;color:var(--lime)}
+.won .gain{display:flex;gap:9px;flex-wrap:wrap}
+.gainchip{font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;color:var(--ink);
+  background:rgba(116,230,164,.13);border:1px solid #2b5643;border-radius:99px;padding:4px 11px}
+.gainchip.amber{background:rgba(255,180,60,.13);border-color:#5a3a1e;color:#ffcd7a}
+.nextrow{display:flex;gap:9px;flex-wrap:wrap;margin-top:2px}
+.nextbtn{border:0;border-radius:8px;padding:9px 17px;font-family:var(--disp);font-weight:600;
+  font-size:13.5px;letter-spacing:.04em;background:var(--cyan);color:#04191d}
+.nextbtn.ghost{background:var(--deck2);color:var(--ink);border:1px solid var(--line2)}
+@keyframes pop{0%{transform:scale(.96);opacity:0}100%{transform:scale(1);opacity:1}}
+.won{animation:pop .25s ease-out}
+@media (prefers-reduced-motion:reduce){.won{animation:none}*{transition-duration:.01ms!important}}
+
+/* ---------- drone ---------- */
+.dronewrap{padding:14px 16px;display:grid;gap:10px;justify-items:center}
+#droneCanvas{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#080b16}
+.dronemeta{font-family:var(--mono);font-size:11.5px;color:var(--dim);letter-spacing:.05em;
+  display:flex;gap:14px;flex-wrap:wrap;justify-content:center;font-variant-numeric:tabular-nums}
+
+/* ---------- toast + modal ---------- */
+.toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));
+  z-index:90;display:grid;gap:8px;width:min(92vw,420px)}
+.toast{background:var(--deck2);border:1px solid var(--line2);border-radius:9px;padding:10px 14px;
+  font-family:var(--mono);font-size:12.5px;color:var(--ink);box-shadow:0 10px 30px rgba(0,0,0,.5);
+  animation:pop .2s ease-out}
+.toast.good{border-color:#2b5643}
+.toast.warn{border-color:#5a3a1e}
+.sheet{position:fixed;inset:0;z-index:100;background:rgba(6,8,17,.78);
+  display:grid;place-items:center;padding:16px}
+.sheet-in{background:var(--deck);border:1px solid var(--line2);border-radius:13px;
+  padding:20px;width:min(94vw,430px);display:grid;gap:12px}
+.sheet-in h3{font-size:19px}
+.sheet-in p{margin:0;color:var(--dim);font-size:14px}
+.sheet-row{display:flex;gap:9px;justify-content:flex-end;flex-wrap:wrap}
+.danger{background:var(--rose);color:#25060c;border:0;border-radius:8px;padding:8px 15px;
+  font-family:var(--disp);font-weight:600;font-size:13.5px}
+
+@media (max-width:900px){
+  .mast{grid-template-columns:1fr;align-items:start}
+  .stage{grid-template-columns:1fr}
+  .xpbar{width:100px}
+}
+@media (max-width:560px){
+  .brand span{display:none}
+  .hud-in{gap:10px}
+  .ed-pre,.ed-ta{padding-left:46px;font-size:13px}
+  .gutter{width:34px}
+  .gutter i{font-size:13px}
+  .timer{margin-left:0}
+}
+</style>
+<div class="hud">
+  <div class="hud-in">
+    <div class="brand"><b>Relay Nine</b><span>JS REPAIR STATION</span></div>
+    <div class="rank">
+      <div class="rank-badge" id="rankNum">1</div>
+      <div class="rank-txt"><b id="rankName">Cadet</b><span id="rankXp">0 XP</span></div>
+      <div class="xpbar" aria-hidden="true"><i id="xpFill" style="width:0%"></i></div>
+    </div>
+    <div class="chip" id="streakChip" title="Consecutive days you have solved something"><span>DAYS</span><b id="streakVal">0</b></div>
+    <div class="chip" id="comboChip" title="Consecutive first-try clears"><span>CHAIN</span><b id="comboVal">0</b></div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<main class="wrap">
+  <!-- ========== MAP ========== -->
+  <section id="viewMap">
+    <div class="mast">
+      <div>
+        <h1>The station is dark.<br>Every system aboard is <em>JavaScript</em>.</h1>
+        <p>Relay Nine was abandoned mid-refit. Six decks, each one broken in its own way, and the code that runs them is yours to repair. Your code executes for real — a sandboxed JavaScript engine runs it and checks the result against the station's own tests.</p>
+      </div>
+      <div class="mission">
+        <h4>Signal strength</h4>
+        <div class="signal" id="signalBars" aria-hidden="true"></div>
+        <div class="mission-row"><span>Systems repaired</span><b id="statSolved">0 / 31</b></div>
+        <div class="mission-row"><span>Decks certified</span><b id="statDecks">0 / 6</b></div>
+        <div class="mission-row"><span>Best chain</span><b id="statChain">0</b></div>
+        <button class="cta" id="continueBtn">Start the systems check</button>
+      </div>
+    </div>
+
+    <div class="sec-h">Station decks</div>
+    <div class="decks" id="deckGrid"></div>
+
+    <div class="foot">
+      <span>Your code runs in a sandboxed worker — nothing leaves this page.</span>
+      <button class="linkbtn" id="resetBtn">Reset all progress</button>
+    </div>
+  </section>
+
+  <!-- ========== PLAY ========== -->
+  <section id="viewPlay" hidden>
+    <div class="play-head">
+      <button class="backbtn" id="backBtn">&larr; Station map</button>
+      <div class="ph-title">
+        <span class="kicker" id="playKicker">Deck 1 · Power Core</span>
+        <h2 id="playTitle">Readout line<span class="bosstag" id="bossTag" hidden>BOSS</span></h2>
+      </div>
+      <div class="timer" id="timer" hidden>05:00</div>
+    </div>
+
+    <div class="stage">
+      <div>
+        <div class="panel">
+          <div class="panel-h">Work order</div>
+          <div class="panel-b">
+            <p class="story" id="playStory"></p>
+            <div class="brief" id="playBrief"></div>
+            <div class="concept" id="conceptWrap">
+              <h5 id="conceptLabel">What you need</h5>
+              <div id="playConcept"></div>
+            </div>
+            <div class="hintbox" id="hintBox"></div>
+            <div class="btnrow">
+              <button class="smallbtn" id="hintBtn">Hint</button>
+              <button class="smallbtn" id="solveBtn">Show a solution</button>
+              <button class="smallbtn" id="resetCodeBtn">Reset code</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;gap:16px;min-width:0">
+        <div class="panel" style="overflow:hidden">
+          <div class="panel-h">Editor <span style="margin-left:auto;font-size:10px" id="edFile">console.js</span></div>
+          <div class="ed-wrap">
+            <div class="ed-scroll" id="edScroll">
+              <div class="gutter" id="gutter" aria-hidden="true"></div>
+              <pre class="ed-pre" id="edPre" aria-hidden="true"></pre>
+              <textarea class="ed-ta" id="code" spellcheck="false" autocapitalize="off" autocorrect="off"
+                aria-label="JavaScript editor"></textarea>
+            </div>
+          </div>
+          <div class="ed-bar">
+            <button class="runbtn" id="runBtn">Run</button>
+            <span class="kbd"><b>Ctrl</b> + <b>Enter</b></span>
+            <span class="kbd" style="margin-left:auto" id="runState"></span>
+          </div>
+        </div>
+
+        <div class="panel" id="dronePanel" hidden>
+          <div class="panel-h">Cargo deck camera</div>
+          <div class="dronewrap">
+            <canvas id="droneCanvas" width="500" height="340"></canvas>
+            <div class="dronemeta">
+              <span>MOVES <b id="droneSteps">0</b></span>
+              <span id="droneStatus">standing by</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-h">Station tests <span style="margin-left:auto;font-size:10px" id="testCount"></span></div>
+          <div class="panel-b" id="resultsBox">
+            <div class="res-empty">Write your repair, then press Run. The station checks it.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-in">
+    <h3 id="sheetTitle">Reset all progress?</h3>
+    <p id="sheetBody">Your XP, streak and every solved system will be cleared. This cannot be undone.</p>
+    <div class="sheet-row">
+      <button class="smallbtn" id="sheetNo">Keep it</button>
+      <button class="danger" id="sheetYes">Reset everything</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Relay Nine — curriculum data.
+   Each challenge: id, deck, title, kind ('lesson'|'boss'|'diag'),
+   brief (HTML), concept (HTML), expose[], starter, solution, hints[], tests[], xp,
+   optional drone config, optional async:true */
+
+const DECKS = [
+  { id: 0, code: 'SYS', name: 'Systems Check', tag: 'Diagnostic',
+    blurb: 'Three quick repairs to see what you already know. Nothing is locked behind it.' },
+  { id: 1, code: 'D1', name: 'Power Core', tag: 'Values &amp; truth',
+    blurb: 'The core readouts are garbled. Strings, numbers, truthiness, and the difference between == and ===.' },
+  { id: 2, code: 'D2', name: 'Nav Runtime', tag: 'Flow &amp; loops',
+    blurb: 'Conditions, loops, and a maintenance drone you steer with your own code.' },
+  { id: 3, code: 'D3', name: 'Cargo Manifest', tag: 'Arrays &amp; objects',
+    blurb: 'map, filter, reduce, sorting without wrecking the original, and reconciling two lists that disagree.' },
+  { id: 4, code: 'D4', name: 'Comms Array', tag: 'Functions',
+    blurb: 'Parameters, pure functions, closures, and functions that take other functions.' },
+  { id: 5, code: 'D5', name: 'Archive', tag: 'Data shapes',
+    blurb: 'Nested records, optional chaining, grouping, and JSON that might be malformed.' },
+  { id: 6, code: 'D6', name: 'Uplink', tag: 'Async',
+    blurb: 'Promises, await, try/catch, and doing several slow things at once instead of one after another.' }
+];
+
+const CHALLENGES = [
+/* ============================ DIAGNOSTIC ============================ */
+{
+  id: 'd1', deck: 0, kind: 'diag', xp: 6,
+  title: 'Power draw',
+  story: 'The core readout adds two feeds together and shows garbage. Start with the adder.',
+  brief: 'Write <code>draw(a, b)</code> so it <strong>returns</strong> the sum of the two numbers.',
+  concept: 'A function that computes something must <code>return</code> it. A function with no <code>return</code> hands back <code>undefined</code>.',
+  expose: ['draw'],
+  starter: 'function draw(a, b) {\n  // return the sum\n}\n',
+  solution: 'function draw(a, b) {\n  return a + b;\n}\n',
+  hints: ['The body needs the word <code>return</code>.', 'Logging a value with <code>console.log</code> is not the same as returning it.'],
+  tests: [
+    { name: 'draw(2, 3) is 5', run: (c) => { isFn(c.fns.draw, 'draw'); eq(c.fns.draw(2, 3), 5); } },
+    { name: 'draw(-4, 10) is 6', run: (c) => { eq(c.fns.draw(-4, 10), 6); } },
+    { name: 'draw(0, 0) is 0', run: (c) => { eq(c.fns.draw(0, 0), 0); } }
+  ]
+},
+{
+  id: 'd2', deck: 0, kind: 'diag', xp: 6,
+  title: 'Crew tags',
+  story: 'Airlock badges print initials only. The badge printer needs a helper.',
+  brief: 'Write <code>initials(fullName)</code> that turns <code>"Ada Lovelace"</code> into <code>"AL"</code>. Names always have exactly two parts.',
+  concept: '<code>split(" ")</code> turns a string into an array of words. <code>name[0]</code> is the first character.',
+  expose: ['initials'],
+  starter: 'function initials(fullName) {\n  \n}\n',
+  solution: 'function initials(fullName) {\n  const parts = fullName.split(" ");\n  return parts[0][0] + parts[1][0];\n}\n',
+  hints: ['Split on a space, then take character <code>[0]</code> of each part.', 'Add the two characters together with <code>+</code>.'],
+  tests: [
+    { name: '"Ada Lovelace" gives "AL"', run: (c) => { isFn(c.fns.initials, 'initials'); eq(c.fns.initials('Ada Lovelace'), 'AL'); } },
+    { name: '"grace hopper" gives "gh"', run: (c) => { eq(c.fns.initials('grace hopper'), 'gh'); } }
+  ]
+},
+{
+  id: 'd3', deck: 0, kind: 'diag', xp: 8,
+  title: 'Hold value',
+  story: 'The cargo hold reports a total value of NaN. Rebuild the sum.',
+  brief: 'Write <code>holdValue(items)</code>. Each item is <code>{ qty, price }</code>. Return the total of <code>qty &times; price</code> across all items. An empty list totals <code>0</code>.',
+  concept: 'You can loop with <code>for...of</code> and add to a running total, or use <code>reduce</code>. Either is fine.',
+  expose: ['holdValue'],
+  starter: 'function holdValue(items) {\n  \n}\n',
+  solution: 'function holdValue(items) {\n  let total = 0;\n  for (const item of items) {\n    total += item.qty * item.price;\n  }\n  return total;\n}\n',
+  hints: ['Start a total at <code>0</code> before the loop, not inside it.', 'Reach into each item with <code>item.qty</code> and <code>item.price</code>.'],
+  tests: [
+    { name: 'two items', run: (c) => { isFn(c.fns.holdValue, 'holdValue'); eq(c.fns.holdValue([{ qty: 2, price: 5 }, { qty: 3, price: 10 }]), 40); } },
+    { name: 'empty list is 0', run: (c) => { eq(c.fns.holdValue([]), 0); } },
+    { name: 'single item', run: (c) => { eq(c.fns.holdValue([{ qty: 7, price: 1.5 }]), 10.5); } }
+  ]
+},
+
+/* ============================ DECK 1 — POWER CORE ============================ */
+{
+  id: '1a', deck: 1, kind: 'lesson', xp: 12,
+  title: 'Readout line',
+  story: 'Every console on the station prints one status line per deck. The formatter was wiped.',
+  brief: 'Write <code>readout(deck, pct)</code> that returns exactly <code>"Deck 3 at 91%"</code> for <code>readout(3, 91)</code>. Build it with a template literal.',
+  concept: 'A template literal uses backticks and <code>${ }</code> to drop values into text:<br><code>`Deck ${deck} at ${pct}%`</code><br>Quotes and <code>+</code> would work too, but backticks read better once there is more than one value.',
+  expose: ['readout'],
+  starter: 'function readout(deck, pct) {\n  return ``;\n}\n',
+  solution: 'function readout(deck, pct) {\n  return `Deck ${deck} at ${pct}%`;\n}\n',
+  hints: ['Backticks, not quotes: <code>`...`</code>', 'Mind the exact spacing — one space either side of <code>at</code>, and the <code>%</code> right after the number.'],
+  tests: [
+    { name: 'readout(3, 91)', run: (c) => { isFn(c.fns.readout, 'readout'); eq(c.fns.readout(3, 91), 'Deck 3 at 91%'); } },
+    { name: 'readout(1, 0)', run: (c) => { eq(c.fns.readout(1, 0), 'Deck 1 at 0%'); } },
+    { name: 'works with a named deck', run: (c) => { eq(c.fns.readout('C', 100), 'Deck C at 100%'); } }
+  ]
+},
+{
+  id: '1b', deck: 1, kind: 'lesson', xp: 12,
+  title: 'Blank fields',
+  story: 'Half the maintenance log entries are empty, and the validator waves them through.',
+  brief: 'Write <code>isBlank(value)</code> returning <code>true</code> when the value carries no content: <code>null</code>, <code>undefined</code>, <code>""</code>, or only spaces. Anything else is <code>false</code> — including <code>0</code> and <code>false</code>, which are real values.',
+  concept: 'JavaScript treats <code>""</code>, <code>0</code>, <code>null</code>, <code>undefined</code>, <code>NaN</code> and <code>false</code> as <em>falsy</em>. That lumps <code>0</code> in with "empty", which is usually a bug. Check the cases you actually mean instead, and use <code>.trim()</code> to strip surrounding spaces.',
+  expose: ['isBlank'],
+  starter: 'function isBlank(value) {\n  \n}\n',
+  solution: 'function isBlank(value) {\n  if (value === null || value === undefined) return true;\n  if (typeof value === "string") return value.trim() === "";\n  return false;\n}\n',
+  hints: ['<code>if (!value)</code> is the trap — it says <code>0</code> is blank.', 'Handle <code>null</code> and <code>undefined</code> first, then the string case, then return <code>false</code>.'],
+  tests: [
+    { name: 'empty string is blank', run: (c) => { isFn(c.fns.isBlank, 'isBlank'); eq(c.fns.isBlank(''), true); } },
+    { name: 'spaces only is blank', run: (c) => { eq(c.fns.isBlank('   '), true); } },
+    { name: 'null and undefined are blank', run: (c) => { eq(c.fns.isBlank(null), true, 'isBlank(null):'); eq(c.fns.isBlank(undefined), true, 'isBlank(undefined):'); } },
+    { name: 'zero is NOT blank', run: (c) => { eq(c.fns.isBlank(0), false); } },
+    { name: 'false is NOT blank', run: (c) => { eq(c.fns.isBlank(false), false); } },
+    { name: 'real text is not blank', run: (c) => { eq(c.fns.isBlank(' coolant flush '), false); } }
+  ]
+},
+{
+  id: '1c', deck: 1, kind: 'lesson', xp: 12,
+  title: 'Access codes',
+  story: 'Codes typed at a keypad arrive as text. The stored codes are numbers. The door opens for everyone.',
+  brief: 'Write <code>codeMatches(typed, stored)</code>. <code>typed</code> is a string, <code>stored</code> is a number. Return <code>true</code> only when the typed digits are that number. Empty or non-numeric input returns <code>false</code>.',
+  concept: '<code>"42" == 42</code> is <code>true</code> — loose equality converts first, quietly. <code>===</code> never converts, so it is the one to reach for. Convert on purpose with <code>Number(typed)</code>, then compare strictly. Watch out: <code>Number("")</code> is <code>0</code>, and <code>Number("abc")</code> is <code>NaN</code>.',
+  expose: ['codeMatches'],
+  starter: 'function codeMatches(typed, stored) {\n  \n}\n',
+  solution: 'function codeMatches(typed, stored) {\n  if (typed.trim() === "") return false;\n  const n = Number(typed);\n  if (Number.isNaN(n)) return false;\n  return n === stored;\n}\n',
+  hints: ['Reject blank input before converting — <code>Number("")</code> is <code>0</code>, which would match a stored <code>0</code>.', 'Use <code>Number.isNaN(n)</code> to catch text that is not a number.'],
+  tests: [
+    { name: '"42" matches 42', run: (c) => { isFn(c.fns.codeMatches, 'codeMatches'); eq(c.fns.codeMatches('42', 42), true); } },
+    { name: '"41" does not match 42', run: (c) => { eq(c.fns.codeMatches('41', 42), false); } },
+    { name: '"0042" still matches 42', run: (c) => { eq(c.fns.codeMatches('0042', 42), true); } },
+    { name: 'empty input never matches 0', run: (c) => { eq(c.fns.codeMatches('', 0), false); } },
+    { name: 'letters never match', run: (c) => { eq(c.fns.codeMatches('open', 0), false); } }
+  ]
+},
+{
+  id: '1d', deck: 1, kind: 'lesson', xp: 12,
+  title: 'Percent complete',
+  story: 'The refit progress bar shows "NaN%" whenever a deck has no tasks logged yet.',
+  brief: 'Write <code>progress(done, total)</code> returning a string like <code>"67%"</code>, rounded to the nearest whole number. If <code>total</code> is <code>0</code>, return <code>"0%"</code> instead of dividing.',
+  concept: 'Dividing by zero gives <code>Infinity</code> or <code>NaN</code>, and both print straight into your UI. Guard the divisor first. <code>Math.round</code> rounds to the nearest integer.',
+  expose: ['progress'],
+  starter: 'function progress(done, total) {\n  \n}\n',
+  solution: 'function progress(done, total) {\n  if (total === 0) return "0%";\n  return `${Math.round((done / total) * 100)}%`;\n}\n',
+  hints: ['Return early when <code>total === 0</code>.', 'Multiply by 100 <em>before</em> rounding, or everything becomes 0% or 100%.'],
+  tests: [
+    { name: '2 of 3 is 67%', run: (c) => { isFn(c.fns.progress, 'progress'); eq(c.fns.progress(2, 3), '67%'); } },
+    { name: '1 of 3 is 33%', run: (c) => { eq(c.fns.progress(1, 3), '33%'); } },
+    { name: 'all done is 100%', run: (c) => { eq(c.fns.progress(9, 9), '100%'); } },
+    { name: 'no tasks is 0%, not NaN%', run: (c) => { eq(c.fns.progress(0, 0), '0%'); } }
+  ]
+},
+{
+  id: '1boss', deck: 1, kind: 'boss', xp: 55, time: 330,
+  title: 'Core Interlock',
+  story: 'The interlock decides whether the core is safe to restart. Get it wrong and the deck stays dark.',
+  brief: 'Write <code>interlockOk(state)</code>. <code>state</code> is <code>{ pressure, tempC, sealed, override }</code>.<br><br>Return <code>true</code> only when <strong>all</strong> of these hold:<ul><li><code>sealed</code> is exactly <code>true</code></li><li><code>pressure</code> is a number from 80 to 120 inclusive</li><li><code>tempC</code> is below 95</li></ul>Except: if <code>override</code> is the string <code>"ENGINEER"</code>, ignore the pressure range — but <code>sealed</code> and the temperature limit still apply. Any missing or non-numeric reading returns <code>false</code>.',
+  concept: 'No hints on a boss. Read the rules twice, then write the guards in the order that makes each one simple.',
+  expose: ['interlockOk'],
+  starter: 'function interlockOk(state) {\n  \n}\n',
+  solution: 'function interlockOk(state) {\n  if (!state) return false;\n  if (state.sealed !== true) return false;\n  if (typeof state.tempC !== "number" || Number.isNaN(state.tempC)) return false;\n  if (state.tempC >= 95) return false;\n  if (state.override === "ENGINEER") return true;\n  if (typeof state.pressure !== "number" || Number.isNaN(state.pressure)) return false;\n  return state.pressure >= 80 && state.pressure <= 120;\n}\n',
+  hints: [],
+  tests: [
+    { name: 'a good state passes', run: (c) => { isFn(c.fns.interlockOk, 'interlockOk'); eq(c.fns.interlockOk({ pressure: 100, tempC: 40, sealed: true }), true); } },
+    { name: 'pressure at the 80 boundary passes', run: (c) => { eq(c.fns.interlockOk({ pressure: 80, tempC: 40, sealed: true }), true); } },
+    { name: 'pressure at the 120 boundary passes', run: (c) => { eq(c.fns.interlockOk({ pressure: 120, tempC: 40, sealed: true }), true); } },
+    { name: 'pressure 121 fails', run: (c) => { eq(c.fns.interlockOk({ pressure: 121, tempC: 40, sealed: true }), false); } },
+    { name: 'unsealed always fails', run: (c) => { eq(c.fns.interlockOk({ pressure: 100, tempC: 40, sealed: false }), false); } },
+    { name: 'sealed must be true, not truthy', run: (c) => { eq(c.fns.interlockOk({ pressure: 100, tempC: 40, sealed: 'yes' }), false); } },
+    { name: 'tempC exactly 95 fails', run: (c) => { eq(c.fns.interlockOk({ pressure: 100, tempC: 95, sealed: true }), false); } },
+    { name: 'override lifts the pressure range', run: (c) => { eq(c.fns.interlockOk({ pressure: 300, tempC: 40, sealed: true, override: 'ENGINEER' }), true); } },
+    { name: 'override does not lift the temp limit', run: (c) => { eq(c.fns.interlockOk({ pressure: 100, tempC: 120, sealed: true, override: 'ENGINEER' }), false); } },
+    { name: 'override does not lift the seal', run: (c) => { eq(c.fns.interlockOk({ pressure: 100, tempC: 40, sealed: false, override: 'ENGINEER' }), false); } },
+    { name: 'missing pressure fails', run: (c) => { eq(c.fns.interlockOk({ tempC: 40, sealed: true }), false); } },
+    { name: 'a text reading fails', run: (c) => { eq(c.fns.interlockOk({ pressure: '100', tempC: 40, sealed: true }), false); } }
+  ]
+},
+
+/* ============================ DECK 2 — NAV RUNTIME ============================ */
+{
+  id: '2a', deck: 2, kind: 'lesson', xp: 12,
+  title: 'Alert levels',
+  story: 'Coolant alarms fire at the wrong thresholds, so nobody trusts them any more.',
+  brief: 'Write <code>alertLevel(tempC)</code> returning <code>"red"</code> at 95 or above, <code>"amber"</code> from 70 up to (but not including) 95, and <code>"green"</code> below 70.',
+  concept: 'Order matters in an <code>if / else if</code> chain: the first true branch wins and the rest are skipped. Test the most extreme case first and the ranges take care of themselves.',
+  expose: ['alertLevel'],
+  starter: 'function alertLevel(tempC) {\n  \n}\n',
+  solution: 'function alertLevel(tempC) {\n  if (tempC >= 95) return "red";\n  if (tempC >= 70) return "amber";\n  return "green";\n}\n',
+  hints: ['Check <code>&gt;= 95</code> before <code>&gt;= 70</code>, or everything hot comes back amber.', 'Three <code>return</code>s and no <code>else</code> needed — a <code>return</code> already ends the function.'],
+  tests: [
+    { name: '120 is red', run: (c) => { isFn(c.fns.alertLevel, 'alertLevel'); eq(c.fns.alertLevel(120), 'red'); } },
+    { name: '95 exactly is red', run: (c) => { eq(c.fns.alertLevel(95), 'red'); } },
+    { name: '94.9 is amber', run: (c) => { eq(c.fns.alertLevel(94.9), 'amber'); } },
+    { name: '70 exactly is amber', run: (c) => { eq(c.fns.alertLevel(70), 'amber'); } },
+    { name: '69 is green', run: (c) => { eq(c.fns.alertLevel(69), 'green'); } },
+    { name: 'below zero is green', run: (c) => { eq(c.fns.alertLevel(-12), 'green'); } }
+  ]
+},
+{
+  id: '2b', deck: 2, kind: 'lesson', xp: 12,
+  title: 'Ignition countdown',
+  story: 'The restart sequence needs a spoken countdown. This one prints rather than returns.',
+  brief: 'Write <code>countdown(n)</code> that logs each number from <code>n</code> down to <code>1</code>, one per line, then logs <code>ignition</code>. Use <code>console.log</code>. If <code>n</code> is 0 or less, log only <code>ignition</code>.',
+  concept: 'A counting loop has three parts: where it starts, when it keeps going, and how it changes each pass.<br><code>for (let i = n; i &gt;= 1; i--) { ... }</code><br>Get the middle part wrong and the loop never ends.',
+  expose: ['countdown'],
+  starter: 'function countdown(n) {\n  \n}\n',
+  solution: 'function countdown(n) {\n  for (let i = n; i >= 1; i--) {\n    console.log(i);\n  }\n  console.log("ignition");\n}\n',
+  hints: ['Counting down means <code>i--</code> and a <code>&gt;=</code> condition.', 'The <code>ignition</code> log goes after the loop, not inside it.'],
+  tests: [
+    { name: 'countdown(3) prints 3, 2, 1, ignition', run: (c) => { isFn(c.fns.countdown, 'countdown'); c.reset(); c.fns.countdown(3); deepEq(c.logs, ['3', '2', '1', 'ignition']); } },
+    { name: 'countdown(1) prints 1, ignition', run: (c) => { c.reset(); c.fns.countdown(1); deepEq(c.logs, ['1', 'ignition']); } },
+    { name: 'countdown(0) prints only ignition', run: (c) => { c.reset(); c.fns.countdown(0); deepEq(c.logs, ['ignition']); } }
+  ]
+},
+{
+  id: '2c', deck: 2, kind: 'lesson', xp: 14,
+  title: 'Drone: the long corridor',
+  story: 'A maintenance drone sits at one end of a service corridor. The charging pad is at the other. It runs whatever you write.',
+  brief: 'Drive the drone onto the goal pad. Write plain code at the top level — no function needed.<br><br>The drone starts facing <strong>east</strong>. The corridor is straight.',
+  concept: 'The drone API:<ul><li><code>drone.forward()</code> — one cell ahead. Hitting a wall stops the run.</li><li><code>drone.left()</code> / <code>drone.right()</code> — turn in place</li><li><code>drone.canMove()</code> — <code>true</code> if the cell ahead is clear</li><li><code>drone.atGoal()</code> — <code>true</code> once it is on the pad</li></ul>A <code>while</code> loop repeats as long as its condition holds — so it is the right shape when you do not know the count in advance.',
+  expose: [],
+  drone: { w: 7, h: 3, start: { x: 0, y: 1, dir: 0 }, goal: { x: 6, y: 1 },
+    walls: ['0,0','1,0','2,0','3,0','4,0','5,0','6,0','0,2','1,2','2,2','3,2','4,2','5,2','6,2'] },
+  starter: '// Drive east until the drone is on the pad.\n// A while loop, drone.atGoal() and drone.forward() are all you need.\n',
+  solution: 'while (!drone.atGoal()) {\n  drone.forward();\n}\n',
+  hints: ['<code>!</code> means "not", so <code>!drone.atGoal()</code> is "while it is not there yet".', 'One statement in the loop body is enough: move forward.'],
+  tests: [
+    { name: 'the drone reaches the pad', run: (c) => { if (!c.drone.atGoal) throw new Error('The drone did not reach the pad.'); } },
+    { name: 'it took no wasted moves', run: (c) => { if (c.drone.steps > 8) throw new Error('Reached the pad, but in ' + c.drone.steps + ' moves. Six should do it.'); } }
+  ]
+},
+{
+  id: '2d', deck: 2, kind: 'lesson', xp: 12,
+  title: 'First fault',
+  story: 'A sensor log holds thousands of readings. Engineering only wants to know where the first bad one is.',
+  brief: 'Write <code>firstFault(readings)</code> returning the <strong>index</strong> of the first reading above 90. If none are, return <code>-1</code>. Stop looking once you find it.',
+  concept: 'A <code>return</code> inside a loop exits the whole function immediately — that is how you stop early. <code>break</code> exits just the loop; <code>continue</code> skips to the next pass.',
+  expose: ['firstFault'],
+  starter: 'function firstFault(readings) {\n  \n}\n',
+  solution: 'function firstFault(readings) {\n  for (let i = 0; i < readings.length; i++) {\n    if (readings[i] > 90) return i;\n  }\n  return -1;\n}\n',
+  hints: ['You need the index, so count with <code>let i = 0; i &lt; readings.length; i++</code> rather than <code>for...of</code>.', 'The <code>return -1</code> belongs after the loop — reaching it means nothing was found.'],
+  tests: [
+    { name: 'finds the fault at index 2', run: (c) => { isFn(c.fns.firstFault, 'firstFault'); eq(c.fns.firstFault([10, 88, 91, 99]), 2); } },
+    { name: 'returns the FIRST one, not the worst', run: (c) => { eq(c.fns.firstFault([10, 91, 20, 200]), 1); } },
+    { name: 'exactly 90 is not a fault', run: (c) => { eq(c.fns.firstFault([90, 90, 90]), -1); } },
+    { name: 'a clean log gives -1', run: (c) => { eq(c.fns.firstFault([1, 2, 3]), -1); } },
+    { name: 'an empty log gives -1', run: (c) => { eq(c.fns.firstFault([]), -1); } },
+    { name: 'index 0 works', run: (c) => { eq(c.fns.firstFault([95, 1]), 0); } }
+  ]
+},
+{
+  id: '2boss', deck: 2, kind: 'boss', xp: 60, time: 360,
+  title: 'Cargo Bay Run',
+  story: 'The bay is a spiral of single-file corridor. The pad is at the middle of it, and you do not get to count the cells.',
+  brief: 'Get the drone onto the pad. It starts facing <strong>east</strong>.<br><br>The bay is a single-file spiral corridor, and every bend turns the same way. Do not count cells and hard-code the moves — write a loop that would still work if the walls moved.<br><br>A useful shape: <em>while you are not there yet, go forward if you can; when you cannot, turn.</em>',
+  concept: 'No hints on a boss. Hitting a wall ends the run, so check <code>drone.canMove()</code> before every move.',
+  expose: [],
+  drone: { w: 8, h: 6, start: { x: 1, y: 4, dir: 0 }, goal: { x: 2, y: 3 },
+    walls: ["0,0","1,0","2,0","3,0","4,0","5,0","6,0","7,0","0,1","1,1","7,1","0,2","1,2","3,2","4,2","5,2","7,2","0,3","1,3","3,3","4,3","5,3","7,3","0,4","7,4","0,5","1,5","2,5","3,5","4,5","5,5","6,5","7,5"] },
+  starter: '// Reach the pad without touching a wall.\n// Which way do the bends go? Try one, watch the drone, adjust.\n',
+  solution: 'while (!drone.atGoal()) {\n  if (drone.canMove()) {\n    drone.forward();\n  } else {\n    drone.left();\n  }\n}\n',
+  hints: [],
+  tests: [
+    { name: 'the drone reaches the pad', run: (c) => { if (!c.drone.atGoal) throw new Error('The drone did not reach the pad.'); } },
+    { name: 'it never hit a wall', run: (c) => { if (c.drone.bumped) throw new Error('The drone hit a wall. Check canMove() before moving.'); } },
+    { name: 'it finished inside 60 moves', run: (c) => { if (c.drone.steps > 60) throw new Error('Took ' + c.drone.steps + ' moves; the limit is 60.'); } }
+  ]
+},
+
+/* ============================ DECK 3 — CARGO MANIFEST ============================ */
+{
+  id: '3a', deck: 3, kind: 'lesson', xp: 12,
+  title: 'Label printer',
+  story: 'Crate labels must be upper case. The printer wants a plain list of codes.',
+  brief: 'Write <code>labels(items)</code> where each item is <code>{ sku, qty }</code>. Return a new array of just the SKUs, upper-cased. Leave <code>items</code> untouched.',
+  concept: '<code>map</code> builds a new array the same length as the old one, running your function on each element:<br><code>items.map(item =&gt; item.sku)</code><br>It never changes the original.',
+  expose: ['labels'],
+  starter: 'function labels(items) {\n  \n}\n',
+  solution: 'function labels(items) {\n  return items.map(item => item.sku.toUpperCase());\n}\n',
+  hints: ['<code>map</code> returns the new array — remember to <code>return</code> it.', 'Inside the arrow function, return <code>item.sku.toUpperCase()</code>.'],
+  tests: [
+    { name: 'upper-cases each sku', run: (c) => { isFn(c.fns.labels, 'labels'); deepEq(c.fns.labels([{ sku: 'ab-1', qty: 2 }, { sku: 'zz-9', qty: 1 }]), ['AB-1', 'ZZ-9']); } },
+    { name: 'empty list gives empty list', run: (c) => { deepEq(c.fns.labels([]), []); } },
+    { name: 'the original items are unchanged', run: (c) => { const src = [{ sku: 'ab-1', qty: 2 }]; c.fns.labels(src); eq(src[0].sku, 'ab-1', 'original sku:'); } }
+  ]
+},
+{
+  id: '3b', deck: 3, kind: 'lesson', xp: 14,
+  title: 'Low stock',
+  story: 'Two questions the hold gets asked all day: what is running out, and where is this one crate.',
+  brief: 'Write <strong>two</strong> functions.<br><code>lowStock(items, threshold)</code> — a new array of the items whose <code>qty</code> is below the threshold, in the original order.<br><code>bySku(items, sku)</code> — the matching item, or <code>null</code> if there is none.',
+  concept: '<code>filter</code> keeps the elements your function says <code>true</code> to. <code>find</code> returns the first match, or <code>undefined</code> when nothing matches — so convert that to <code>null</code> yourself if that is what the caller expects.',
+  expose: ['lowStock', 'bySku'],
+  starter: 'function lowStock(items, threshold) {\n  \n}\n\nfunction bySku(items, sku) {\n  \n}\n',
+  solution: 'function lowStock(items, threshold) {\n  return items.filter(item => item.qty < threshold);\n}\n\nfunction bySku(items, sku) {\n  const hit = items.find(item => item.sku === sku);\n  return hit === undefined ? null : hit;\n}\n',
+  hints: ['<code>filter</code> for many, <code>find</code> for one.', '<code>find</code> gives <code>undefined</code> when it misses — the brief asks for <code>null</code>.'],
+  tests: [
+    { name: 'lowStock keeps the short ones', run: (c) => { isFn(c.fns.lowStock, 'lowStock'); const items = [{ sku: 'A', qty: 2 }, { sku: 'B', qty: 40 }, { sku: 'C', qty: 5 }]; deepEq(c.fns.lowStock(items, 10), [{ sku: 'A', qty: 2 }, { sku: 'C', qty: 5 }]); } },
+    { name: 'the threshold is exclusive', run: (c) => { deepEq(c.fns.lowStock([{ sku: 'A', qty: 10 }], 10), []); } },
+    { name: 'bySku finds the item', run: (c) => { isFn(c.fns.bySku, 'bySku'); deepEq(c.fns.bySku([{ sku: 'A', qty: 1 }, { sku: 'B', qty: 2 }], 'B'), { sku: 'B', qty: 2 }); } },
+    { name: 'bySku returns null, not undefined', run: (c) => { eq(c.fns.bySku([{ sku: 'A', qty: 1 }], 'Q'), null); } }
+  ]
+},
+{
+  id: '3c', deck: 3, kind: 'lesson', xp: 14,
+  title: 'Manifest value',
+  story: 'Customs wants one number: what the hold is worth, to the cent.',
+  brief: 'Write <code>manifestValue(items)</code> where each item is <code>{ sku, qty, price }</code>. Return the total of <code>qty &times; price</code>, rounded to 2 decimal places as a <strong>number</strong>. Empty list totals <code>0</code>.',
+  concept: '<code>reduce</code> folds an array down to one value. It takes the running total and the next element, and returns the new total:<br><code>items.reduce((sum, item) =&gt; sum + item.qty * item.price, 0)</code><br>The <code>0</code> at the end is the starting value — leave it out and an empty array throws.<br><br>To round to cents: <code>Math.round(n * 100) / 100</code>.',
+  expose: ['manifestValue'],
+  starter: 'function manifestValue(items) {\n  \n}\n',
+  solution: 'function manifestValue(items) {\n  const total = items.reduce((sum, item) => sum + item.qty * item.price, 0);\n  return Math.round(total * 100) / 100;\n}\n',
+  hints: ['Do not forget the <code>, 0</code> starting value on <code>reduce</code>.', '<code>toFixed(2)</code> gives you a <em>string</em>; the brief asks for a number.'],
+  tests: [
+    { name: 'sums qty times price', run: (c) => { isFn(c.fns.manifestValue, 'manifestValue'); eq(c.fns.manifestValue([{ sku: 'A', qty: 2, price: 3 }, { sku: 'B', qty: 1, price: 4 }]), 10); } },
+    { name: 'rounds to cents', run: (c) => { eq(c.fns.manifestValue([{ sku: 'A', qty: 3, price: 0.335 }]), 1.01); } },
+    { name: 'empty hold is 0', run: (c) => { eq(c.fns.manifestValue([]), 0); } },
+    { name: 'returns a number, not a string', run: (c) => { const v = c.fns.manifestValue([{ sku: 'A', qty: 1, price: 2 }]); if (typeof v !== 'number') throw new Error('Expected a number, got a ' + typeof v + '.'); } }
+  ]
+},
+{
+  id: '3d', deck: 3, kind: 'lesson', xp: 16,
+  title: 'Heaviest crates',
+  story: 'Loading order goes heaviest first. Last time the sort scrambled the master manifest.',
+  brief: 'Write <code>heaviest(items, n)</code> returning an array of the <strong>SKUs</strong> of the <code>n</code> heaviest items, heaviest first. Each item is <code>{ sku, kg }</code>. The array you are given must come back in its original order — do not mutate it.',
+  concept: '<code>sort</code> changes the array in place and returns that same array. So <code>items.sort(...)</code> wrecks the caller\'s data. Copy first with <code>items.slice()</code> or <code>[...items]</code>.<br><br>A numeric comparator: <code>(a, b) =&gt; b.kg - a.kg</code> sorts descending. <code>slice(0, n)</code> takes the first <code>n</code>.',
+  expose: ['heaviest'],
+  starter: 'function heaviest(items, n) {\n  \n}\n',
+  solution: 'function heaviest(items, n) {\n  return [...items]\n    .sort((a, b) => b.kg - a.kg)\n    .slice(0, n)\n    .map(item => item.sku);\n}\n',
+  hints: ['Copy before you sort: <code>[...items].sort(...)</code>.', 'Descending is <code>b.kg - a.kg</code>. Ascending is <code>a.kg - b.kg</code>.'],
+  tests: [
+    { name: 'returns the two heaviest skus', run: (c) => { isFn(c.fns.heaviest, 'heaviest'); deepEq(c.fns.heaviest([{ sku: 'A', kg: 5 }, { sku: 'B', kg: 50 }, { sku: 'C', kg: 20 }], 2), ['B', 'C']); } },
+    { name: 'n larger than the list is fine', run: (c) => { deepEq(c.fns.heaviest([{ sku: 'A', kg: 5 }], 3), ['A']); } },
+    { name: 'the caller\'s array is not reordered', run: (c) => { const src = [{ sku: 'A', kg: 5 }, { sku: 'B', kg: 50 }]; c.fns.heaviest(src, 1); deepEq(src.map(i => i.sku), ['A', 'B'], 'original order:'); } },
+    { name: 'sorts by weight, not alphabetically', run: (c) => { deepEq(c.fns.heaviest([{ sku: 'Z', kg: 9 }, { sku: 'A', kg: 100 }], 1), ['A']); } }
+  ]
+},
+{
+  id: '3boss', deck: 3, kind: 'boss', xp: 70, time: 420,
+  title: 'Manifest Reconcile',
+  story: 'A supply run arrived. The shipped manifest and the received count disagree, and somebody has to say exactly how.',
+  brief: 'Write <code>reconcile(shipped, received)</code>. Both are arrays of <code>{ sku, qty }</code>. Return:<br><br><code>{ missing: [...], extra: [...], mismatched: [...] }</code><ul><li><code>missing</code> — SKUs in <code>shipped</code> that never arrived, in shipped order</li><li><code>extra</code> — SKUs in <code>received</code> that were never shipped, in received order</li><li><code>mismatched</code> — for SKUs in both with different counts: <code>{ sku, shipped, received }</code>, in shipped order</li></ul>SKUs that match exactly appear nowhere. All three keys are always present, even when empty.',
+  concept: 'No hints on a boss. Looking a SKU up repeatedly is easier if you index one side first — an object or a <code>Map</code> keyed by SKU.',
+  expose: ['reconcile'],
+  starter: 'function reconcile(shipped, received) {\n  \n}\n',
+  solution: 'function reconcile(shipped, received) {\n  const recvMap = new Map(received.map(r => [r.sku, r.qty]));\n  const shipMap = new Map(shipped.map(s => [s.sku, s.qty]));\n  const missing = [];\n  const mismatched = [];\n  for (const s of shipped) {\n    if (!recvMap.has(s.sku)) {\n      missing.push(s.sku);\n    } else if (recvMap.get(s.sku) !== s.qty) {\n      mismatched.push({ sku: s.sku, shipped: s.qty, received: recvMap.get(s.sku) });\n    }\n  }\n  const extra = received.filter(r => !shipMap.has(r.sku)).map(r => r.sku);\n  return { missing, extra, mismatched };\n}\n',
+  hints: [],
+  tests: [
+    { name: 'a perfect match reports nothing', run: (c) => { isFn(c.fns.reconcile, 'reconcile'); const r = c.fns.reconcile([{ sku: 'A', qty: 2 }], [{ sku: 'A', qty: 2 }]); deepEq(r, { missing: [], extra: [], mismatched: [] }); } },
+    { name: 'finds a missing sku', run: (c) => { const r = c.fns.reconcile([{ sku: 'A', qty: 1 }, { sku: 'B', qty: 1 }], [{ sku: 'B', qty: 1 }]); deepEq(r.missing, ['A']); } },
+    { name: 'finds an extra sku', run: (c) => { const r = c.fns.reconcile([{ sku: 'A', qty: 1 }], [{ sku: 'A', qty: 1 }, { sku: 'X', qty: 4 }]); deepEq(r.extra, ['X']); } },
+    { name: 'finds a count mismatch', run: (c) => { const r = c.fns.reconcile([{ sku: 'A', qty: 10 }], [{ sku: 'A', qty: 7 }]); deepEq(r.mismatched, [{ sku: 'A', shipped: 10, received: 7 }]); } },
+    { name: 'a mismatch is not also missing or extra', run: (c) => { const r = c.fns.reconcile([{ sku: 'A', qty: 10 }], [{ sku: 'A', qty: 7 }]); deepEq(r.missing, [], 'missing:'); deepEq(r.extra, [], 'extra:'); } },
+    { name: 'all three at once, in order', run: (c) => {
+        const r = c.fns.reconcile(
+          [{ sku: 'A', qty: 5 }, { sku: 'B', qty: 2 }, { sku: 'C', qty: 1 }],
+          [{ sku: 'C', qty: 1 }, { sku: 'A', qty: 4 }, { sku: 'Z', qty: 9 }]);
+        deepEq(r.missing, ['B'], 'missing:');
+        deepEq(r.extra, ['Z'], 'extra:');
+        deepEq(r.mismatched, [{ sku: 'A', shipped: 5, received: 4 }], 'mismatched:');
+      } },
+    { name: 'empty received means everything is missing', run: (c) => { const r = c.fns.reconcile([{ sku: 'A', qty: 1 }, { sku: 'B', qty: 1 }], []); deepEq(r.missing, ['A', 'B']); } },
+    { name: 'empty shipped means everything is extra', run: (c) => { const r = c.fns.reconcile([], [{ sku: 'A', qty: 1 }]); deepEq(r.extra, ['A']); deepEq(r.missing, [], 'missing:'); } },
+    { name: 'a zero received count still counts as arrived', run: (c) => { const r = c.fns.reconcile([{ sku: 'A', qty: 3 }], [{ sku: 'A', qty: 0 }]); deepEq(r.missing, [], 'missing:'); deepEq(r.mismatched, [{ sku: 'A', shipped: 3, received: 0 }], 'mismatched:'); } }
+  ]
+},
+
+/* ============================ DECK 4 — COMMS ARRAY ============================ */
+{
+  id: '4a', deck: 4, kind: 'lesson', xp: 12,
+  title: 'Default station',
+  story: 'Outbound messages need a sender line. Nearly all of them come from this station.',
+  brief: 'Write <code>sender(name, station)</code> returning <code>"Ada · Relay Nine"</code>. When <code>station</code> is not supplied, it defaults to <code>"Relay Nine"</code>. The separator is a space, a middle dot, and a space.',
+  concept: 'A default parameter fills in when the argument is missing or <code>undefined</code>:<br><code>function sender(name, station = "Relay Nine") { ... }</code><br>It does <em>not</em> fill in for <code>null</code> or <code>""</code> — those are values you passed on purpose.',
+  expose: ['sender'],
+  starter: 'function sender(name, station) {\n  \n}\n',
+  solution: 'function sender(name, station = "Relay Nine") {\n  return `${name} · ${station}`;\n}\n',
+  hints: ['Put the default in the parameter list, not in the body.', 'Copy the middle dot from the brief: <code>·</code>'],
+  tests: [
+    { name: 'uses the station given', run: (c) => { isFn(c.fns.sender, 'sender'); eq(c.fns.sender('Ada', 'Dock Two'), 'Ada · Dock Two'); } },
+    { name: 'defaults when omitted', run: (c) => { eq(c.fns.sender('Ada'), 'Ada · Relay Nine'); } },
+    { name: 'defaults on explicit undefined', run: (c) => { eq(c.fns.sender('Ada', undefined), 'Ada · Relay Nine'); } }
+  ]
+},
+{
+  id: '4b', deck: 4, kind: 'lesson', xp: 14,
+  title: 'Tag without damage',
+  story: 'A function that tags crew records has been quietly editing the archive as it reads it.',
+  brief: 'Write <code>addTag(record, tag)</code> returning a <strong>new</strong> record with <code>tag</code> appended to its <code>tags</code> array. The record passed in must not change at all. Records with no <code>tags</code> yet should come back with <code>tags: [tag]</code>.',
+  concept: 'Objects and arrays are passed by reference: <code>record.tags.push(tag)</code> edits the caller\'s data, not a copy. Build a new one instead:<br><code>{ ...record, tags: [...(record.tags ?? []), tag] }</code><br><code>??</code> supplies a fallback only for <code>null</code> and <code>undefined</code>.',
+  expose: ['addTag'],
+  starter: 'function addTag(record, tag) {\n  \n}\n',
+  solution: 'function addTag(record, tag) {\n  return { ...record, tags: [...(record.tags ?? []), tag] };\n}\n',
+  hints: ['<code>push</code> mutates. Spread into a fresh array instead.', 'Spread the record too, or you lose its other fields.'],
+  tests: [
+    { name: 'appends the tag', run: (c) => { isFn(c.fns.addTag, 'addTag'); const out = c.fns.addTag({ name: 'Ada', tags: ['eng'] }, 'lead'); deepEq(out.tags, ['eng', 'lead']); } },
+    { name: 'keeps the other fields', run: (c) => { const out = c.fns.addTag({ name: 'Ada', deck: 3, tags: [] }, 'x'); eq(out.name, 'Ada', 'name:'); eq(out.deck, 3, 'deck:'); } },
+    { name: 'the original record is untouched', run: (c) => { const src = { name: 'Ada', tags: ['eng'] }; c.fns.addTag(src, 'lead'); deepEq(src.tags, ['eng'], 'original tags:'); } },
+    { name: 'returns a different object', run: (c) => { const src = { name: 'Ada', tags: [] }; const out = c.fns.addTag(src, 'x'); if (out === src) throw new Error('You returned the same object. Build a new one.'); } },
+    { name: 'handles a record with no tags', run: (c) => { deepEq(c.fns.addTag({ name: 'Ada' }, 'first').tags, ['first']); } }
+  ]
+},
+{
+  id: '4c', deck: 4, kind: 'lesson', xp: 16,
+  title: 'Transmit budget',
+  story: 'The uplink allows a fixed number of sends per window. Something has to keep count, privately.',
+  brief: 'Write <code>makeBudget(limit)</code> returning a function. Calling that function returns <code>true</code> for the first <code>limit</code> calls and <code>false</code> for every call after. Two budgets made separately must not share a count.',
+  concept: 'A function defined inside another function can still see that outer function\'s variables after the outer one has returned. That surviving private variable is a <em>closure</em> — the standard way to keep state without a global.<br><br><code>function makeBudget(limit) {<br>&nbsp; let used = 0;<br>&nbsp; return function () { ... };<br>}</code>',
+  expose: ['makeBudget'],
+  starter: 'function makeBudget(limit) {\n  \n}\n',
+  solution: 'function makeBudget(limit) {\n  let used = 0;\n  return function () {\n    if (used >= limit) return false;\n    used++;\n    return true;\n  };\n}\n',
+  hints: ['The counter is declared in <code>makeBudget</code>, before the returned function — not inside it.', 'Only count a call that actually succeeds.'],
+  tests: [
+    { name: 'returns a function', run: (c) => { isFn(c.fns.makeBudget, 'makeBudget'); const b = c.fns.makeBudget(2); if (typeof b !== 'function') throw new Error('makeBudget should return a function, got a ' + typeof b + '.'); } },
+    { name: 'allows exactly the limit', run: (c) => { const b = c.fns.makeBudget(3); deepEq([b(), b(), b(), b()], [true, true, true, false]); } },
+    { name: 'a limit of 0 allows nothing', run: (c) => { const b = c.fns.makeBudget(0); eq(b(), false); } },
+    { name: 'stays false once spent', run: (c) => { const b = c.fns.makeBudget(1); b(); b(); eq(b(), false); } },
+    { name: 'two budgets count separately', run: (c) => { const a = c.fns.makeBudget(1); const b = c.fns.makeBudget(1); a(); eq(b(), true, 'second budget:'); } }
+  ]
+},
+{
+  id: '4d', deck: 4, kind: 'lesson', xp: 14,
+  title: 'Signal chain',
+  story: 'Raw telemetry passes through a chain of cleanup steps, and the chain changes from one feed to the next.',
+  brief: 'Write <code>applyAll(value, steps)</code> where <code>steps</code> is an array of functions. Pass <code>value</code> through each one in order, feeding each result into the next, and return the final value. An empty <code>steps</code> array returns <code>value</code> unchanged.',
+  concept: 'Functions are values: you can put them in arrays and pass them around. <code>reduce</code> suits this well — the running value is the data, and each element is a function to apply:<br><code>steps.reduce((acc, step) =&gt; step(acc), value)</code>',
+  expose: ['applyAll'],
+  starter: 'function applyAll(value, steps) {\n  \n}\n',
+  solution: 'function applyAll(value, steps) {\n  return steps.reduce((acc, step) => step(acc), value);\n}\n',
+  hints: ['Each step takes the previous step\'s output, not the original value.', 'A plain <code>for...of</code> loop reassigning a variable works just as well as <code>reduce</code>.'],
+  tests: [
+    { name: 'applies steps in order', run: (c) => { isFn(c.fns.applyAll, 'applyAll'); eq(c.fns.applyAll(2, [(n) => n + 1, (n) => n * 10]), 30); } },
+    { name: 'order matters and is respected', run: (c) => { eq(c.fns.applyAll(2, [(n) => n * 10, (n) => n + 1]), 21); } },
+    { name: 'no steps returns the value', run: (c) => { eq(c.fns.applyAll('raw', []), 'raw'); } },
+    { name: 'works on strings too', run: (c) => { eq(c.fns.applyAll('  ADA ', [(s) => s.trim(), (s) => s.toLowerCase()]), 'ada'); } }
+  ]
+},
+{
+  id: '4boss', deck: 4, kind: 'boss', xp: 70, time: 420,
+  title: 'Signal Pipeline',
+  story: 'The real cleanup chain has steps written by six different engineers. Some of them throw. The pipeline still has to deliver.',
+  brief: 'Write <code>pipeline(steps)</code> that returns a function. Calling that function with a value runs every step in order and returns:<br><br><code>{ value, applied, skipped }</code><ul><li><code>value</code> — the result after the steps that worked</li><li><code>applied</code> — how many steps succeeded</li><li><code>skipped</code> — an array of the <strong>indexes</strong> of steps that threw</li></ul>A step that throws is skipped: the value carries on from before it. The pipeline never throws. The returned function must be reusable — calling it twice must give the same answer.',
+  concept: 'No hints on a boss. <code>try { ... } catch (err) { ... }</code> lets a failure stay local instead of ending the run.',
+  expose: ['pipeline'],
+  starter: 'function pipeline(steps) {\n  \n}\n',
+  solution: 'function pipeline(steps) {\n  return function (input) {\n    let value = input;\n    let applied = 0;\n    const skipped = [];\n    steps.forEach((step, i) => {\n      try {\n        value = step(value);\n        applied++;\n      } catch (err) {\n        skipped.push(i);\n      }\n    });\n    return { value, applied, skipped };\n  };\n}\n',
+  hints: [],
+  tests: [
+    { name: 'returns a function', run: (c) => { isFn(c.fns.pipeline, 'pipeline'); if (typeof c.fns.pipeline([]) !== 'function') throw new Error('pipeline should return a function.'); } },
+    { name: 'all steps working', run: (c) => { const run = c.fns.pipeline([(n) => n + 1, (n) => n * 2]); deepEq(run(3), { value: 8, applied: 2, skipped: [] }); } },
+    { name: 'a throwing step is skipped', run: (c) => { const run = c.fns.pipeline([(n) => n + 1, () => { throw new Error('bad'); }, (n) => n * 2]); const out = run(3); eq(out.value, 8, 'value:'); eq(out.applied, 2, 'applied:'); deepEq(out.skipped, [1], 'skipped:'); } },
+    { name: 'records the right indexes', run: (c) => { const boom = () => { throw new Error('x'); }; const run = c.fns.pipeline([boom, (n) => n + 1, boom]); deepEq(run(0).skipped, [0, 2]); } },
+    { name: 'every step throwing returns the input', run: (c) => { const boom = () => { throw new Error('x'); }; const out = c.fns.pipeline([boom, boom])('raw'); eq(out.value, 'raw', 'value:'); eq(out.applied, 0, 'applied:'); } },
+    { name: 'no steps is a clean pass-through', run: (c) => { deepEq(c.fns.pipeline([])(5), { value: 5, applied: 0, skipped: [] }); } },
+    { name: 'the pipeline itself never throws', run: (c) => { const run = c.fns.pipeline([() => { throw new Error('nope'); }]); try { run(1); } catch (err) { throw new Error('It threw: ' + err.message + '. Catch inside the pipeline.'); } } },
+    { name: 'the returned function is reusable', run: (c) => { const run = c.fns.pipeline([(n) => n + 1, () => { throw new Error('x'); }]); const a = run(1); const b = run(1); deepEq(b, a, 'second call:'); } }
+  ]
+},
+
+/* ============================ DECK 5 — ARCHIVE ============================ */
+{
+  id: '5a', deck: 5, kind: 'lesson', xp: 12,
+  title: 'Deep fields',
+  story: 'Crew records were merged from three systems. Half of them are missing whole branches, and the reader keeps crashing.',
+  brief: 'Write <code>deckOf(record)</code> returning <code>record.assignment.deck</code> when it exists, and the string <code>"unassigned"</code> otherwise. It must not throw, even when <code>record</code> itself is <code>null</code>.',
+  concept: '<code>record.assignment.deck</code> throws if <code>assignment</code> is missing. <code>?.</code> stops early and gives <code>undefined</code> instead:<br><code>record?.assignment?.deck</code><br>Then <code>??</code> supplies the fallback — and unlike <code>||</code>, it leaves <code>0</code> and <code>""</code> alone.',
+  expose: ['deckOf'],
+  starter: 'function deckOf(record) {\n  \n}\n',
+  solution: 'function deckOf(record) {\n  return record?.assignment?.deck ?? "unassigned";\n}\n',
+  hints: ['One line: optional chaining, then <code>??</code>.', 'Use <code>??</code> rather than <code>||</code> so a deck numbered <code>0</code> survives.'],
+  tests: [
+    { name: 'reads a nested deck', run: (c) => { isFn(c.fns.deckOf, 'deckOf'); eq(c.fns.deckOf({ name: 'Ada', assignment: { deck: 3 } }), 3); } },
+    { name: 'missing assignment falls back', run: (c) => { eq(c.fns.deckOf({ name: 'Ada' }), 'unassigned'); } },
+    { name: 'null record does not throw', run: (c) => { eq(c.fns.deckOf(null), 'unassigned'); } },
+    { name: 'no arguments does not throw', run: (c) => { eq(c.fns.deckOf(), 'unassigned'); } },
+    { name: 'deck 0 is kept, not replaced', run: (c) => { eq(c.fns.deckOf({ assignment: { deck: 0 } }), 0); } }
+  ]
+},
+{
+  id: '5b', deck: 5, kind: 'lesson', xp: 16,
+  title: 'Roster by deck',
+  story: 'The evacuation drill needs the roster grouped by deck, not one long alphabetical list.',
+  brief: 'Write <code>byDeck(crew)</code> where each member is <code>{ name, deck }</code>. Return an object whose keys are deck values and whose values are arrays of names, in the order they appear. Members with no <code>deck</code> go under the key <code>"unassigned"</code>.',
+  concept: 'Grouping is a loop that builds up an object. The pattern is always the same: if the key does not exist yet, create it with an empty array, then push.<br><code>if (!out[key]) out[key] = [];<br>out[key].push(name);</code>',
+  expose: ['byDeck'],
+  starter: 'function byDeck(crew) {\n  \n}\n',
+  solution: 'function byDeck(crew) {\n  const out = {};\n  for (const member of crew) {\n    const key = member.deck ?? "unassigned";\n    if (!out[key]) out[key] = [];\n    out[key].push(member.name);\n  }\n  return out;\n}\n',
+  hints: ['Create the array before pushing into it, or you push onto <code>undefined</code>.', 'Object keys are always strings — <code>out[3]</code> and <code>out["3"]</code> are the same slot.'],
+  tests: [
+    { name: 'groups two decks', run: (c) => { isFn(c.fns.byDeck, 'byDeck'); deepEq(c.fns.byDeck([{ name: 'Ada', deck: 1 }, { name: 'Bo', deck: 2 }, { name: 'Cy', deck: 1 }]), { 1: ['Ada', 'Cy'], 2: ['Bo'] }); } },
+    { name: 'keeps roster order inside a group', run: (c) => { deepEq(c.fns.byDeck([{ name: 'Zed', deck: 1 }, { name: 'Ada', deck: 1 }])[1], ['Zed', 'Ada']); } },
+    { name: 'no deck goes to unassigned', run: (c) => { deepEq(c.fns.byDeck([{ name: 'Ada' }]), { unassigned: ['Ada'] }); } },
+    { name: 'empty crew gives an empty object', run: (c) => { deepEq(c.fns.byDeck([]), {}); } }
+  ]
+},
+{
+  id: '5c', deck: 5, kind: 'lesson', xp: 16,
+  title: 'Malformed log',
+  story: 'Logs arrive as JSON text from six sources. One of them writes truncated files, and the reader dies on the whole batch.',
+  brief: 'Write <code>errorCount(text)</code>. <code>text</code> should be JSON for an array of <code>{ level, msg }</code>. Return how many entries have <code>level === "error"</code>. If the text is not valid JSON, or does not parse to an array, return <code>-1</code> rather than throwing.',
+  concept: '<code>JSON.parse</code> throws on malformed text, so it belongs in a <code>try</code> block. Valid JSON can still be the wrong shape — <code>"42"</code> parses fine to a number — so check with <code>Array.isArray</code> before you trust it.',
+  expose: ['errorCount'],
+  starter: 'function errorCount(text) {\n  \n}\n',
+  solution: 'function errorCount(text) {\n  let data;\n  try {\n    data = JSON.parse(text);\n  } catch (err) {\n    return -1;\n  }\n  if (!Array.isArray(data)) return -1;\n  return data.filter(entry => entry && entry.level === "error").length;\n}\n',
+  hints: ['Keep the <code>try</code> around the parse only — not around your counting.', '<code>Array.isArray(data)</code> is the shape check.'],
+  tests: [
+    { name: 'counts errors', run: (c) => { isFn(c.fns.errorCount, 'errorCount'); eq(c.fns.errorCount('[{"level":"error"},{"level":"info"},{"level":"error"}]'), 2); } },
+    { name: 'no errors is 0', run: (c) => { eq(c.fns.errorCount('[{"level":"info"}]'), 0); } },
+    { name: 'empty array is 0', run: (c) => { eq(c.fns.errorCount('[]'), 0); } },
+    { name: 'truncated JSON gives -1', run: (c) => { eq(c.fns.errorCount('[{"level":"err'), -1); } },
+    { name: 'valid JSON of the wrong shape gives -1', run: (c) => { eq(c.fns.errorCount('42'), -1); } },
+    { name: 'an object instead of an array gives -1', run: (c) => { eq(c.fns.errorCount('{"level":"error"}'), -1); } }
+  ]
+},
+{
+  id: '5boss', deck: 5, kind: 'boss', xp: 75, time: 420,
+  title: 'Crew Report',
+  story: 'Station command wants one summary object for the whole roster, and they want it from a data set that is missing fields everywhere.',
+  brief: 'Write <code>report(crew)</code>. Each member may be <code>{ name, deck, years }</code>, with <code>deck</code> or <code>years</code> missing. Return:<br><br><code>{ total, decks, longest, avgYears }</code><ul><li><code>total</code> — how many members</li><li><code>decks</code> — the deck values present, as an array of strings, sorted alphabetically; members with no deck do not add one</li><li><code>longest</code> — the <code>name</code> with the highest <code>years</code>; on a tie the one appearing first wins; <code>null</code> if nobody has a <code>years</code> value</li><li><code>avgYears</code> — mean <code>years</code> across only the members that have one, rounded to 1 decimal place; <code>0</code> when nobody has one</li></ul>An empty roster returns <code>{ total: 0, decks: [], longest: null, avgYears: 0 }</code>.',
+  concept: 'No hints on a boss. Decide what counts as "has a years value" before you start — a missing field and a <code>0</code> are not the same thing.',
+  expose: ['report'],
+  starter: 'function report(crew) {\n  \n}\n',
+  solution: 'function report(crew) {\n  const decks = [...new Set(crew.filter(m => m.deck !== undefined && m.deck !== null).map(m => String(m.deck)))].sort();\n  const withYears = crew.filter(m => typeof m.years === "number");\n  let longest = null;\n  let best = -Infinity;\n  for (const m of withYears) {\n    if (m.years > best) { best = m.years; longest = m.name; }\n  }\n  const avgYears = withYears.length === 0\n    ? 0\n    : Math.round((withYears.reduce((s, m) => s + m.years, 0) / withYears.length) * 10) / 10;\n  return { total: crew.length, decks, longest, avgYears };\n}\n',
+  hints: [],
+  tests: [
+    { name: 'empty roster', run: (c) => { isFn(c.fns.report, 'report'); deepEq(c.fns.report([]), { total: 0, decks: [], longest: null, avgYears: 0 }); } },
+    { name: 'counts the total', run: (c) => { eq(c.fns.report([{ name: 'A' }, { name: 'B' }]).total, 2); } },
+    { name: 'decks are unique, sorted strings', run: (c) => { deepEq(c.fns.report([{ name: 'A', deck: 'C' }, { name: 'B', deck: 'A' }, { name: 'D', deck: 'C' }]).decks, ['A', 'C']); } },
+    { name: 'missing decks add nothing', run: (c) => { deepEq(c.fns.report([{ name: 'A' }, { name: 'B', deck: '2' }]).decks, ['2']); } },
+    { name: 'finds the longest serving', run: (c) => { eq(c.fns.report([{ name: 'A', years: 2 }, { name: 'B', years: 9 }]).longest, 'B'); } },
+    { name: 'a tie goes to the first listed', run: (c) => { eq(c.fns.report([{ name: 'A', years: 5 }, { name: 'B', years: 5 }]).longest, 'A'); } },
+    { name: 'nobody with years gives null', run: (c) => { eq(c.fns.report([{ name: 'A' }]).longest, null); } },
+    { name: 'zero years still counts as a value', run: (c) => { eq(c.fns.report([{ name: 'A', years: 0 }]).longest, 'A'); } },
+    { name: 'averages only members that have years', run: (c) => { eq(c.fns.report([{ name: 'A', years: 4 }, { name: 'B' }, { name: 'C', years: 5 }]).avgYears, 4.5); } },
+    { name: 'average rounds to 1 decimal', run: (c) => { eq(c.fns.report([{ name: 'A', years: 1 }, { name: 'B', years: 2 }, { name: 'C', years: 2 }]).avgYears, 1.7); } },
+    { name: 'no years gives an average of 0', run: (c) => { eq(c.fns.report([{ name: 'A' }]).avgYears, 0); } }
+  ]
+},
+
+/* ============================ DECK 6 — UPLINK ============================ */
+{
+  id: '6a', deck: 6, kind: 'lesson', xp: 14, async: true,
+  title: 'Timed ping',
+  story: 'Before the uplink can handshake, it has to be able to wait without freezing the station.',
+  brief: 'Write <code>ping(ms)</code> that returns a Promise resolving to the string <code>"pong"</code> after roughly <code>ms</code> milliseconds. Do not block — use <code>setTimeout</code>.',
+  concept: 'A Promise represents a value that is not ready yet. You build one by describing when it becomes ready:<br><code>new Promise((resolve) =&gt; {<br>&nbsp; setTimeout(() =&gt; resolve("pong"), ms);<br>});</code><br><code>resolve</code> is the switch you flip when the value arrives. The tests <code>await</code> what you return.',
+  expose: ['ping'],
+  starter: 'function ping(ms) {\n  \n}\n',
+  solution: 'function ping(ms) {\n  return new Promise((resolve) => {\n    setTimeout(() => resolve("pong"), ms);\n  });\n}\n',
+  hints: ['Return the Promise — <code>new Promise(...)</code> on its own line does nothing.', '<code>setTimeout(fn, ms)</code> takes the function first, the delay second.'],
+  tests: [
+    { name: 'returns a Promise', run: (c) => { isFn(c.fns.ping, 'ping'); const p = c.fns.ping(1); if (!p || typeof p.then !== 'function') throw new Error('ping should return a Promise.'); } },
+    { name: 'resolves to "pong"', run: async (c) => { eq(await c.fns.ping(10), 'pong'); } },
+    { name: 'it actually waits', run: async (c) => { const t = Date.now(); await c.fns.ping(80); const spent = Date.now() - t; if (spent < 60) throw new Error('Resolved after only ' + spent + 'ms — it should wait about 80.'); } }
+  ]
+},
+{
+  id: '6b', deck: 6, kind: 'lesson', xp: 14, async: true,
+  title: 'Survive a bad feed',
+  story: 'One telemetry feed in five rejects. A single rejection currently takes down the whole read.',
+  brief: 'Write <code>safeRead(loader)</code> as an <code>async</code> function. <code>loader</code> is a function returning a Promise. Return what it resolves to. If it rejects — or throws straight away — return <code>null</code> instead of failing.',
+  concept: '<code>async</code> on a function means it returns a Promise, and lets you use <code>await</code> inside. <code>await</code> pauses until the Promise settles, then gives you the value — or throws if it rejected. So a rejection is caught by an ordinary <code>try / catch</code>:<br><code>try { return await loader(); } catch (err) { return null; }</code>',
+  expose: ['safeRead'],
+  starter: 'async function safeRead(loader) {\n  \n}\n',
+  solution: 'async function safeRead(loader) {\n  try {\n    return await loader();\n  } catch (err) {\n    return null;\n  }\n}\n',
+  hints: ['The <code>await</code> must be <em>inside</em> the <code>try</code>, or the rejection escapes it.', 'A function that throws synchronously is caught by the same <code>try</code>.'],
+  tests: [
+    { name: 'passes the value through', run: async (c) => { isFn(c.fns.safeRead, 'safeRead'); eq(await c.fns.safeRead(() => Promise.resolve(42)), 42); } },
+    { name: 'a rejection becomes null', run: async (c) => { eq(await c.fns.safeRead(() => Promise.reject(new Error('feed down'))), null); } },
+    { name: 'a synchronous throw becomes null', run: async (c) => { eq(await c.fns.safeRead(() => { throw new Error('no feed'); }), null); } },
+    { name: 'waits for a slow feed', run: async (c) => { eq(await c.fns.safeRead(() => new Promise(r => setTimeout(() => r('late'), 50))), 'late'); } }
+  ]
+},
+{
+  id: '6c', deck: 6, kind: 'lesson', xp: 16, async: true,
+  title: 'All feeds at once',
+  story: 'Twelve feeds, each taking a second. Read them one after another and the report is late every single time.',
+  brief: 'Write <code>readAll(loaders)</code> as an <code>async</code> function. <code>loaders</code> is an array of functions, each returning a Promise. Return an array of their resolved values <strong>in the original order</strong> — and start them all at once rather than waiting for each in turn.',
+  concept: 'Awaiting inside a loop makes the calls sequential: total time is the sum. To overlap them, start every Promise first, then wait for the set:<br><code>await Promise.all(loaders.map(load =&gt; load()))</code><br><code>Promise.all</code> preserves order regardless of which finishes first, and rejects as soon as any one of them does.',
+  expose: ['readAll'],
+  starter: 'async function readAll(loaders) {\n  \n}\n',
+  solution: 'async function readAll(loaders) {\n  return Promise.all(loaders.map(load => load()));\n}\n',
+  hints: ['<code>for (const load of loaders) { await load(); }</code> is the slow version — that is what the timing test catches.', '<code>map</code> them into Promises first, then hand the array to <code>Promise.all</code>.'],
+  tests: [
+    { name: 'returns values in order', run: async (c) => { isFn(c.fns.readAll, 'readAll'); deepEq(await c.fns.readAll([() => Promise.resolve('a'), () => Promise.resolve('b')]), ['a', 'b']); } },
+    { name: 'order holds when the slow one is first', run: async (c) => { const slow = () => new Promise(r => setTimeout(() => r('slow'), 60)); const fast = () => Promise.resolve('fast'); deepEq(await c.fns.readAll([slow, fast]), ['slow', 'fast']); } },
+    { name: 'empty list gives an empty array', run: async (c) => { deepEq(await c.fns.readAll([]), []); } },
+    { name: 'the reads overlap instead of queueing', run: async (c) => {
+        const make = () => new Promise(r => setTimeout(() => r(1), 90));
+        const t = Date.now();
+        await c.fns.readAll([make, make, make]);
+        const spent = Date.now() - t;
+        if (spent > 220) throw new Error('Took ' + spent + 'ms for three 90ms reads — they ran one after another.');
+      } }
+  ]
+},
+{
+  id: '6boss', deck: 6, kind: 'boss', xp: 90, time: 480, async: true,
+  title: 'Uplink Handshake',
+  story: 'The final transmission. The link drops at random, so one attempt is not a plan. Retry it properly and Relay Nine is back on the network.',
+  brief: 'Write <code>handshake(send, attempts)</code> as an <code>async</code> function. <code>send</code> is a function returning a Promise that may reject. Try it up to <code>attempts</code> times, stopping at the first success.<br><br>Return <code>{ ok, tries, value }</code>:<ul><li><code>ok</code> — <code>true</code> if any attempt succeeded</li><li><code>tries</code> — how many times you called <code>send</code></li><li><code>value</code> — the resolved value on success, <code>null</code> on failure</li></ul>It must never reject, and it must not call <code>send</code> again after a success. <code>attempts</code> of 0 or less returns <code>{ ok: false, tries: 0, value: null }</code>.',
+  concept: 'No hints on a boss. A retry is a loop with an <code>await</code> in a <code>try</code> — and the successful path has to leave the loop.',
+  expose: ['handshake'],
+  starter: 'async function handshake(send, attempts) {\n  \n}\n',
+  solution: 'async function handshake(send, attempts) {\n  let tries = 0;\n  while (tries < attempts) {\n    tries++;\n    try {\n      const value = await send();\n      return { ok: true, tries, value };\n    } catch (err) {\n      // try again\n    }\n  }\n  return { ok: false, tries, value: null };\n}\n',
+  hints: [],
+  tests: [
+    { name: 'succeeds first go', run: async (c) => { isFn(c.fns.handshake, 'handshake'); deepEq(await c.fns.handshake(() => Promise.resolve('linked'), 3), { ok: true, tries: 1, value: 'linked' }); } },
+    { name: 'retries until it works', run: async (c) => { let n = 0; const send = () => { n++; return n < 3 ? Promise.reject(new Error('drop')) : Promise.resolve('linked'); }; deepEq(await c.fns.handshake(send, 5), { ok: true, tries: 3, value: 'linked' }); } },
+    { name: 'gives up after the limit', run: async (c) => { let n = 0; const send = () => { n++; return Promise.reject(new Error('drop')); }; const out = await c.fns.handshake(send, 4); deepEq(out, { ok: false, tries: 4, value: null }, 'result:'); eq(n, 4, 'send called:'); } },
+    { name: 'never rejects', run: async (c) => { try { await c.fns.handshake(() => Promise.reject(new Error('drop')), 2); } catch (err) { throw new Error('It rejected: ' + err.message); } } },
+    { name: 'stops calling send after success', run: async (c) => { let n = 0; const send = () => { n++; return Promise.resolve('ok'); }; await c.fns.handshake(send, 5); eq(n, 1, 'send called:'); } },
+    { name: 'zero attempts calls nothing', run: async (c) => { let n = 0; const send = () => { n++; return Promise.resolve('ok'); }; deepEq(await c.fns.handshake(send, 0), { ok: false, tries: 0, value: null }, 'result:'); eq(n, 0, 'send called:'); } },
+    { name: 'a synchronous throw is a failed attempt, not a crash', run: async (c) => { const out = await c.fns.handshake(() => { throw new Error('dead'); }, 2); eq(out.ok, false, 'ok:'); eq(out.tries, 2, 'tries:'); } }
+  ]
+}
+];
+
+/* Relay Nine — sandbox source builder.
+   buildSource() returns the full text of a Web Worker script that:
+     1. runs the learner's code inside an IIFE,
+     2. exposes the named functions,
+     3. runs the challenge's tests against them,
+     4. postMessage's the result.
+   The same string is used by the page (as a Blob worker) and by the
+   Node verification harness, so what is tested is what ships. */
+
+const HELPERS = `
+function __fmt(v) {
+  if (typeof v === 'string') return JSON.stringify(v);
+  if (v === undefined) return 'undefined';
+  if (v === null) return 'null';
+  if (typeof v === 'number' || typeof v === 'boolean') return String(v);
+  if (typeof v === 'function') return '[function ' + (v.name || 'anonymous') + ']';
+  try { return JSON.stringify(v); } catch (e) { return String(v); }
+}
+function eq(actual, expected, label) {
+  if (!Object.is(actual, expected)) {
+    throw new Error((label || 'Expected') + ' ' + __fmt(expected) + ', got ' + __fmt(actual) + '.');
+  }
+}
+function deepEq(actual, expected, label) {
+  var a, b;
+  try { a = JSON.stringify(actual); } catch (e) { a = String(actual); }
+  try { b = JSON.stringify(expected); } catch (e) { b = String(expected); }
+  if (a !== b) {
+    throw new Error((label || 'Expected') + ' ' + b + ', got ' + a + '.');
+  }
+}
+function isFn(v, name) {
+  if (typeof v !== 'function') {
+    throw new Error('No function called ' + name + ' yet' + (v === undefined ? '' : ' (found a ' + typeof v + ')') + '.');
+  }
+}
+function truthy(v, label) {
+  if (!v) throw new Error((label || 'Expected a truthy value, got') + ' ' + __fmt(v) + '.');
+}
+function near(actual, expected, tol, label) {
+  if (typeof actual !== 'number' || Math.abs(actual - expected) > (tol === undefined ? 0.001 : tol)) {
+    throw new Error((label || 'Expected about') + ' ' + expected + ', got ' + __fmt(actual) + '.');
+  }
+}
+`;
+
+const DRONE = `
+function __makeDrone(cfg) {
+  var DIRS = [[1, 0], [0, 1], [-1, 0], [0, -1]];
+  var walls = {};
+  for (var i = 0; i < cfg.walls.length; i++) walls[cfg.walls[i]] = true;
+  var st = { x: cfg.start.x, y: cfg.start.y, dir: cfg.start.dir, steps: 0, bumped: false, trace: [] };
+  function blocked(x, y) {
+    if (x < 0 || y < 0 || x >= cfg.w || y >= cfg.h) return true;
+    return walls[x + ',' + y] === true;
+  }
+  function rec(a) { st.trace.push({ a: a, x: st.x, y: st.y, dir: st.dir }); }
+  function budget() {
+    st.steps++;
+    if (st.steps > 400) throw new Error('The drone ran out of power after 400 moves — your loop never ends.');
+  }
+  rec('start');
+  var api = {
+    forward: function () {
+      budget();
+      var d = DIRS[st.dir];
+      if (blocked(st.x + d[0], st.y + d[1])) {
+        st.bumped = true; rec('bump');
+        throw new Error('The drone hit a wall. Check drone.canMove() before moving.');
+      }
+      st.x += d[0]; st.y += d[1]; rec('move');
+      return true;
+    },
+    left: function () { budget(); st.dir = (st.dir + 3) % 4; rec('turn'); },
+    right: function () { budget(); st.dir = (st.dir + 1) % 4; rec('turn'); },
+    canMove: function () { var d = DIRS[st.dir]; return !blocked(st.x + d[0], st.y + d[1]); },
+    atGoal: function () { return st.x === cfg.goal.x && st.y === cfg.goal.y; },
+    where: function () { return { x: st.x, y: st.y }; }
+  };
+  return { api: api, st: st };
+}
+`;
+
+function testsToSource(tests) {
+  return '[' + tests.map(function (t) {
+    return '{ name: ' + JSON.stringify(t.name) + ', run: ' + t.run.toString() + ' }';
+  }).join(',\n') + ']';
+}
+
+function buildSource(challenge, userCode) {
+  const expose = challenge.expose || [];
+  const exposeSrc = expose.length
+    ? expose.map(function (n) {
+        return JSON.stringify(n) + ': (typeof ' + n + ' === "undefined" ? undefined : ' + n + ')';
+      }).join(', ')
+    : '';
+  const droneSrc = challenge.drone
+    ? 'var __d = __makeDrone(' + JSON.stringify(challenge.drone) + '); var drone = __d.api;'
+    : 'var __d = null;';
+
+  return '"use strict";\n' + HELPERS + DRONE + `
+var __logs = [];
+function __plain() {
+  var parts = [];
+  for (var i = 0; i < arguments.length; i++) {
+    var v = arguments[i];
+    parts.push(typeof v === 'string' ? v : __fmt(v));
+  }
+  __logs.push(parts.join(' '));
+}
+var console = { log: __plain, info: __plain, warn: __plain, error: __plain, debug: __plain };
+${droneSrc}
+var __fns = {};
+var __err = null;
+(function () {
+  try {
+    var __out = (function () {
+${userCode}
+;
+      return { ${exposeSrc} };
+    })();
+    __fns = __out || {};
+  } catch (e) {
+    __err = (e && e.message) ? String(e.message) : String(e);
+  }
+})();
+
+var __TESTS = ${testsToSource(challenge.tests)};
+
+function __droneView() {
+  if (!__d) return null;
+  return {
+    atGoal: __d.st.x === ${challenge.drone ? challenge.drone.goal.x : 0} && __d.st.y === ${challenge.drone ? challenge.drone.goal.y : 0},
+    steps: __d.st.steps,
+    bumped: __d.st.bumped,
+    x: __d.st.x, y: __d.st.y,
+    trace: __d.st.trace
+  };
+}
+
+async function __go() {
+  var view = __droneView();
+  var payload = { logs: __logs.slice(), error: __err, drone: view, results: [] };
+  var fatal = __err !== null && ${challenge.drone ? 'false' : 'true'};
+  if (fatal) { return payload; }
+  var ctx = {
+    fns: __fns,
+    logs: __logs,
+    drone: view,
+    reset: function () { __logs.length = 0; }
+  };
+  for (var i = 0; i < __TESTS.length; i++) {
+    var t = __TESTS[i];
+    try {
+      await t.run(ctx);
+      payload.results.push({ name: t.name, pass: true });
+    } catch (e) {
+      payload.results.push({ name: t.name, pass: false, msg: (e && e.message) ? String(e.message) : String(e) });
+    }
+  }
+  payload.logs = __logs.slice();
+  return payload;
+}
+
+__go().then(function (p) { __send(p); }, function (e) {
+  __send({ logs: __logs.slice(), error: (e && e.message) ? String(e.message) : String(e), drone: __droneView(), results: [] });
+});
+`;
+}
+
+/* ================= Relay Nine — app ================= */
+(function () {
+'use strict';
+
+var TOTAL = CHALLENGES.length;
+var RANKS = [
+  { xp: 0, name: 'Cadet' }, { xp: 45, name: 'Deck Hand' }, { xp: 110, name: 'Junior Tech' },
+  { xp: 200, name: 'Systems Tech' }, { xp: 310, name: 'Engineer' }, { xp: 440, name: 'Senior Engineer' },
+  { xp: 600, name: 'Chief Engineer' }, { xp: 790, name: 'Relay Master' }
+];
+var LS_KEY = 'relay-nine-v1';
+
+var state = { xp: 0, solved: {}, streak: 0, lastDay: null, combo: 0, bestCombo: 0, updatedAt: 0 };
+var dbNS = null;          // Artifact db capability, when available
+var current = null;       // current challenge
+var attempted = false;    // has the learner run this challenge and failed
+var peeked = false;       // did they reveal the solution
+var hintsShown = 0;
+var timerId = null, timeLeft = 0, overTime = false;
+var worker = null, workerTimer = null;
+
+/* ---------- storage ---------- */
+function today() { var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+function dayDiff(a, b) {
+  if (!a || !b) return null;
+  var pa = a.split('-').map(Number), pb = b.split('-').map(Number);
+  var da = Date.UTC(pa[0], pa[1] - 1, pa[2]), db = Date.UTC(pb[0], pb[1] - 1, pb[2]);
+  return Math.round((db - da) / 86400000);
+}
+function loadLocal() {
+  try {
+    var raw = localStorage.getItem(LS_KEY);
+    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') return p; }
+  } catch (e) {}
+  return null;
+}
+function saveLocal() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {}
+}
+function save() {
+  state.updatedAt = Date.now();
+  saveLocal();
+  if (dbNS) { try { dbNS.doc('progress/main').set(state); } catch (e) {} }
+}
+function adopt(p) {
+  if (!p || typeof p !== 'object') return;
+  state.xp = typeof p.xp === 'number' ? p.xp : 0;
+  state.solved = (p.solved && typeof p.solved === 'object') ? p.solved : {};
+  state.streak = typeof p.streak === 'number' ? p.streak : 0;
+  state.lastDay = typeof p.lastDay === 'string' ? p.lastDay : null;
+  state.combo = typeof p.combo === 'number' ? p.combo : 0;
+  state.bestCombo = typeof p.bestCombo === 'number' ? p.bestCombo : 0;
+  state.updatedAt = typeof p.updatedAt === 'number' ? p.updatedAt : 0;
+}
+
+/* ---------- helpers ---------- */
+function $(id) { return document.getElementById(id); }
+function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function byId(cid) { for (var i = 0; i < CHALLENGES.length; i++) if (CHALLENGES[i].id === cid) return CHALLENGES[i]; return null; }
+function deckOf(n) { for (var i = 0; i < DECKS.length; i++) if (DECKS[i].id === n) return DECKS[i]; return DECKS[0]; }
+function inDeck(n) { return CHALLENGES.filter(function (c) { return c.deck === n; }); }
+function isSolved(cid) { return !!state.solved[cid]; }
+function deckDone(n) { return inDeck(n).every(function (c) { return isSolved(c.id); }); }
+function lessonsDone(n) { return inDeck(n).filter(function (c) { return c.kind !== 'boss'; }).every(function (c) { return isSolved(c.id); }); }
+function deckOpen(n) { return n <= 1 ? true : lessonsDone(n - 1); }
+function solvedCount() { var k = 0; for (var id in state.solved) if (state.solved[id]) k++; return k; }
+function rankOf(xp) { var i = 0; for (var k = 0; k < RANKS.length; k++) if (xp >= RANKS[k].xp) i = k; return i; }
+
+function toast(msg, kind) {
+  var box = $('toasts');
+  var el = document.createElement('div');
+  el.className = 'toast' + (kind ? ' ' + kind : '');
+  el.textContent = msg;
+  box.appendChild(el);
+  setTimeout(function () { el.remove(); }, 4200);
+}
+
+/* ---------- HUD ---------- */
+function renderHud() {
+  var ri = rankOf(state.xp);
+  var r = RANKS[ri], next = RANKS[ri + 1];
+  $('rankNum').textContent = String(ri + 1);
+  $('rankName').textContent = r.name;
+  $('rankXp').textContent = state.xp + ' XP' + (next ? ' · ' + (next.xp - state.xp) + ' to go' : ' · maxed');
+  var pct = next ? Math.round(((state.xp - r.xp) / (next.xp - r.xp)) * 100) : 100;
+  $('xpFill').style.width = Math.max(0, Math.min(100, pct)) + '%';
+  $('streakVal').textContent = String(state.streak);
+  $('comboVal').textContent = String(state.combo);
+  $('streakChip').className = 'chip' + (state.streak > 1 ? ' hot' : '');
+  $('comboChip').className = 'chip' + (state.combo > 1 ? ' hot' : '');
+}
+
+function renderMap() {
+  var solved = solvedCount();
+  $('statSolved').textContent = solved + ' / ' + TOTAL;
+  var certified = 0;
+  for (var d = 1; d <= 6; d++) if (deckDone(d)) certified++;
+  $('statDecks').textContent = certified + ' / 6';
+  $('statChain').textContent = String(state.bestCombo);
+
+  var bars = $('signalBars');
+  if (bars.children.length === 0) {
+    for (var i = 0; i < 24; i++) {
+      var b = document.createElement('i');
+      b.style.height = (24 + i * 3) + '%';
+      bars.appendChild(b);
+    }
+  }
+  var lit = Math.round((solved / TOTAL) * 24);
+  for (var j = 0; j < 24; j++) bars.children[j].className = j < lit ? 'on' : '';
+
+  // continue button target
+  var nextC = nextUnsolved();
+  $('continueBtn').textContent = nextC
+    ? (solved === 0 ? 'Start the systems check' : 'Continue: ' + nextC.title)
+    : 'Every system repaired';
+  $('continueBtn').disabled = !nextC;
+
+  var grid = $('deckGrid');
+  grid.innerHTML = '';
+  DECKS.forEach(function (dk) {
+    var list = inDeck(dk.id);
+    if (!list.length) return;
+    var open = dk.id === 0 ? true : deckOpen(dk.id);
+    var done = deckDone(dk.id);
+    var card = document.createElement('div');
+    card.className = 'deckcard ' + (done ? 'done' : open ? 'open' : 'locked');
+
+    var pips = list.map(function (c) {
+      return '<span class="pip' + (c.kind === 'boss' ? ' boss' : '') + (isSolved(c.id) ? ' solved' : '') +
+        '" title="' + esc(c.title) + '"></span>';
+    }).join('');
+
+    var tasks = open ? '<div class="tasklist">' + list.map(function (c) {
+      return '<button class="tasklink' + (isSolved(c.id) ? ' solved' : '') + (c.kind === 'boss' ? ' isboss' : '') +
+        '" data-go="' + c.id + '"><span class="tl-mark">' + (isSolved(c.id) ? '✓' : c.kind === 'boss' ? '◆' : '○') +
+        '</span><span>' + esc(c.title) + '</span><span class="tl-xp">' + c.xp + ' XP</span></button>';
+    }).join('') + '</div>' : '';
+
+    card.innerHTML =
+      '<div class="dc-top"><span class="dc-code">' + esc(dk.code) + '</span><h3>' + esc(dk.name) + '</h3></div>' +
+      '<div class="dc-tag">' + dk.tag + '</div>' +
+      '<p class="dc-blurb">' + dk.blurb + '</p>' +
+      '<div class="pips">' + pips + '</div>' +
+      tasks +
+      '<div class="dc-foot">' +
+        '<span>' + list.filter(function (c) { return isSolved(c.id); }).length + ' of ' + list.length + ' repaired</span>' +
+        (open ? '' : '<span class="lockmsg">Finish ' + esc(deckOf(dk.id - 1).name) + ' to unlock</span>') +
+      '</div>';
+    grid.appendChild(card);
+  });
+
+  Array.prototype.forEach.call(grid.querySelectorAll('[data-go]'), function (b) {
+    b.addEventListener('click', function () { openChallenge(b.getAttribute('data-go')); });
+  });
+}
+
+function nextUnsolved() {
+  for (var i = 0; i < CHALLENGES.length; i++) {
+    var c = CHALLENGES[i];
+    if (isSolved(c.id)) continue;
+    if (c.deck !== 0 && !deckOpen(c.deck)) continue;
+    return c;
+  }
+  return null;
+}
+
+/* ---------- editor ---------- */
+var KEYWORDS = 'await|async|break|case|catch|class|const|continue|default|delete|do|else|export|extends|finally|for|from|function|if|import|in|instanceof|let|new|of|return|super|switch|this|throw|try|typeof|var|void|while|yield';
+function highlight(src) {
+  var out = '', i = 0, n = src.length;
+  function esc2(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  while (i < n) {
+    var ch = src[i];
+    // comments
+    if (ch === '/' && src[i + 1] === '/') { var e = src.indexOf('\n', i); if (e === -1) e = n; out += '<span class="tok-com">' + esc2(src.slice(i, e)) + '</span>'; i = e; continue; }
+    if (ch === '/' && src[i + 1] === '*') { var e2 = src.indexOf('*/', i); e2 = e2 === -1 ? n : e2 + 2; out += '<span class="tok-com">' + esc2(src.slice(i, e2)) + '</span>'; i = e2; continue; }
+    // strings
+    if (ch === '"' || ch === "'" || ch === '`') {
+      var q = ch, j = i + 1;
+      while (j < n) { if (src[j] === '\\') { j += 2; continue; } if (src[j] === q) { j++; break; } j++; }
+      out += '<span class="tok-str">' + esc2(src.slice(i, j)) + '</span>'; i = j; continue;
+    }
+    // numbers
+    if (/[0-9]/.test(ch) && !/[\w$]/.test(src[i - 1] || '')) {
+      var k = i; while (k < n && /[0-9._eE]/.test(src[k])) k++;
+      out += '<span class="tok-num">' + esc2(src.slice(i, k)) + '</span>'; i = k; continue;
+    }
+    // words
+    if (/[A-Za-z_$]/.test(ch)) {
+      var m = i; while (m < n && /[\w$]/.test(src[m])) m++;
+      var w = src.slice(i, m);
+      var cls = '';
+      if (new RegExp('^(' + KEYWORDS + ')$').test(w)) cls = 'tok-key';
+      else if (/^(true|false|null|undefined|NaN|Infinity)$/.test(w)) cls = 'tok-bool';
+      else if (src[m] === '(') cls = 'tok-fn';
+      out += cls ? '<span class="' + cls + '">' + esc2(w) + '</span>' : esc2(w);
+      i = m; continue;
+    }
+    if ('+-*/%<>=!&|?:'.indexOf(ch) !== -1) { out += '<span class="tok-op">' + esc2(ch) + '</span>'; i++; continue; }
+    if ('{}()[];,.'.indexOf(ch) !== -1) { out += '<span class="tok-pun">' + esc2(ch) + '</span>'; i++; continue; }
+    out += esc2(ch); i++;
+  }
+  return out;
+}
+function syncEditor() {
+  var ta = $('code');
+  var src = ta.value;
+  $('edPre').innerHTML = highlight(src) + '\n\n';
+  var lines = src.split('\n').length;
+  var g = $('gutter'), want = Math.max(lines, 1);
+  if (g.childElementCount !== want) {
+    var h = '';
+    for (var i = 1; i <= want; i++) h += '<i>' + i + '</i>';
+    g.innerHTML = h;
+  }
+}
+
+/* ---------- drone drawing ---------- */
+var droneAnim = null;
+function drawDrone(cfg, trace, upto) {
+  var cv = $('droneCanvas'), ctx = cv.getContext('2d');
+  var cell = Math.floor(Math.min(cv.width / cfg.w, cv.height / cfg.h, 56));
+  var ox = Math.floor((cv.width - cell * cfg.w) / 2), oy = Math.floor((cv.height - cell * cfg.h) / 2);
+  var wallSet = {}; cfg.walls.forEach(function (k) { wallSet[k] = true; });
+  ctx.fillStyle = '#080b16'; ctx.fillRect(0, 0, cv.width, cv.height);
+  for (var y = 0; y < cfg.h; y++) for (var x = 0; x < cfg.w; x++) {
+    var px = ox + x * cell, py = oy + y * cell;
+    if (wallSet[x + ',' + y]) {
+      ctx.fillStyle = '#0a0d1c'; ctx.fillRect(px, py, cell - 1, cell - 1);
+      ctx.strokeStyle = '#161b36'; ctx.lineWidth = 1; ctx.strokeRect(px + .5, py + .5, cell - 2, cell - 2);
+    } else {
+      ctx.fillStyle = '#1d2450'; ctx.fillRect(px, py, cell - 1, cell - 1);
+      ctx.strokeStyle = '#333c73'; ctx.strokeRect(px + .5, py + .5, cell - 2, cell - 2);
+    }
+  }
+  // goal pad
+  var gx = ox + cfg.goal.x * cell, gy = oy + cfg.goal.y * cell;
+  ctx.strokeStyle = '#4fd1e0'; ctx.lineWidth = 2;
+  ctx.strokeRect(gx + 4.5, gy + 4.5, cell - 10, cell - 10);
+  ctx.fillStyle = 'rgba(79,209,224,.16)'; ctx.fillRect(gx + 5, gy + 5, cell - 11, cell - 11);
+  // travelled path
+  ctx.strokeStyle = 'rgba(255,180,60,.42)'; ctx.lineWidth = Math.max(2, cell * .12);
+  ctx.lineJoin = 'round'; ctx.beginPath();
+  for (var i = 0; i <= upto && i < trace.length; i++) {
+    var t = trace[i], cx = ox + t.x * cell + cell / 2, cy = oy + t.y * cell + cell / 2;
+    if (i === 0) ctx.moveTo(cx, cy); else ctx.lineTo(cx, cy);
+  }
+  ctx.stroke();
+  // drone
+  var cur = trace[Math.min(upto, trace.length - 1)] || { x: cfg.start.x, y: cfg.start.y, dir: cfg.start.dir };
+  var dx = ox + cur.x * cell + cell / 2, dy = oy + cur.y * cell + cell / 2, r = cell * .3;
+  ctx.save(); ctx.translate(dx, dy); ctx.rotate(cur.dir * Math.PI / 2);
+  ctx.fillStyle = '#ffb43c'; ctx.beginPath();
+  ctx.moveTo(r, 0); ctx.lineTo(-r * .72, r * .74); ctx.lineTo(-r * .34, 0); ctx.lineTo(-r * .72, -r * .74);
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+  if (cur.a === 'bump') {
+    ctx.strokeStyle = '#ff6b81'; ctx.lineWidth = 2;
+    ctx.strokeRect(ox + cur.x * cell + 1.5, oy + cur.y * cell + 1.5, cell - 4, cell - 4);
+  }
+}
+function animateDrone(cfg, view) {
+  if (droneAnim) { clearInterval(droneAnim); droneAnim = null; }
+  var trace = (view && view.trace) ? view.trace : [{ x: cfg.start.x, y: cfg.start.y, dir: cfg.start.dir, a: 'start' }];
+  var i = 0;
+  drawDrone(cfg, trace, 0);
+  $('droneSteps').textContent = '0';
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduced || trace.length > 120) {
+    drawDrone(cfg, trace, trace.length - 1);
+    $('droneSteps').textContent = String(view ? view.steps : 0);
+    return;
+  }
+  droneAnim = setInterval(function () {
+    i++;
+    if (i >= trace.length) { clearInterval(droneAnim); droneAnim = null; i = trace.length - 1; }
+    drawDrone(cfg, trace, i);
+    $('droneSteps').textContent = String(i);
+  }, 150);
+}
+
+/* ---------- running code ---------- */
+function stopWorker() {
+  if (worker) { try { worker.terminate(); } catch (e) {} worker = null; }
+  if (workerTimer) { clearTimeout(workerTimer); workerTimer = null; }
+}
+function run() {
+  if (!current) return;
+  stopWorker();
+  $('runBtn').disabled = true;
+  $('runState').textContent = 'running…';
+  var code = $('code').value;
+  var src = 'self.__send = function (p) { postMessage(p); };\n' + buildSource(current, code);
+  var url;
+  try {
+    url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
+    worker = new Worker(url);
+  } catch (e) {
+    $('runBtn').disabled = false; $('runState').textContent = '';
+    showError('The sandbox could not start in this browser: ' + e.message);
+    return;
+  }
+  var settled = false;
+  worker.onmessage = function (ev) {
+    if (settled) return; settled = true;
+    stopWorker(); URL.revokeObjectURL(url);
+    $('runBtn').disabled = false; $('runState').textContent = '';
+    report(ev.data);
+  };
+  worker.onerror = function (ev) {
+    if (settled) return; settled = true;
+    stopWorker(); URL.revokeObjectURL(url);
+    $('runBtn').disabled = false; $('runState').textContent = '';
+    showError('Your code could not be parsed.\n' + (ev.message || 'Check for a missing bracket, brace or quote.'));
+  };
+  workerTimer = setTimeout(function () {
+    if (settled) return; settled = true;
+    stopWorker(); URL.revokeObjectURL(url);
+    $('runBtn').disabled = false; $('runState').textContent = '';
+    showError('Your code ran for 4 seconds and was stopped.\n\nAlmost always this is a loop whose condition never becomes false — check that something inside the loop actually changes it.');
+  }, 4000);
+}
+
+function showError(msg) {
+  $('resultsBox').innerHTML = '<div class="errbox">' + esc(msg) + '</div>';
+}
+
+function report(data) {
+  var box = $('resultsBox');
+  var html = '';
+  if (current.drone) {
+    animateDrone(current.drone, data.drone);
+    var st = data.drone || {};
+    $('droneStatus').textContent = st.bumped ? 'collision' : st.atGoal ? 'on the pad' : 'off the pad';
+  }
+  if (data.error) {
+    html += '<div class="errbox">' + esc(data.error) + '</div>';
+  }
+  var results = data.results || [];
+  if (results.length) {
+    html += '<div class="res">' + results.map(function (r) {
+      return '<div class="tline ' + (r.pass ? 'pass' : 'fail') + '"><span class="mk">' +
+        (r.pass ? '✓' : '✗') + '</span><span class="nm">' + esc(r.name) +
+        (r.pass ? '' : '<span class="why">' + esc(r.msg || 'failed') + '</span>') + '</span></div>';
+    }).join('') + '</div>';
+  }
+  if (data.logs && data.logs.length) {
+    html += '<div class="panel-h" style="border:0;padding:14px 0 6px">Console output</div>' +
+      '<div class="outbox">' + esc(data.logs.join('\n')) + '</div>';
+  }
+  box.innerHTML = html || '<div class="res-empty">Nothing came back. Did the code run?</div>';
+
+  var allPass = results.length > 0 && results.every(function (r) { return r.pass; });
+  if (allPass) { win(); } else { attempted = true; }
+}
+
+/* ---------- winning ---------- */
+function win() {
+  var first = !isSolved(current.id);
+  var gains = [];
+  if (first) {
+    var nextDeckWasOpen = current.deck >= 1 && current.deck < 6 ? deckOpen(current.deck + 1) : true;
+    var award = current.xp;
+    if (peeked) award = Math.round(award * 0.4);
+    var bonus = 0;
+    if (current.kind === 'boss' && !overTime && current.time) {
+      bonus = Math.round(current.xp * 0.5 * (timeLeft / current.time));
+    }
+    var beforeRank = rankOf(state.xp);
+    state.xp += award + bonus;
+    state.solved[current.id] = { peeked: peeked, clean: !attempted && !peeked };
+    gains.push('+' + award + ' XP');
+    if (bonus > 0) gains.push({ amber: true, t: '+' + bonus + ' XP time bonus' });
+    if (peeked) gains.push('solution revealed \u2014 40% XP');
+
+    if (!attempted && !peeked) {
+      state.combo++;
+      if (state.combo > state.bestCombo) state.bestCombo = state.combo;
+      if (state.combo > 1) gains.push({ amber: true, t: 'chain \u00d7' + state.combo });
+    } else {
+      state.combo = 0;
+    }
+
+    var t = today(), diff = dayDiff(state.lastDay, t);
+    var streakGrew = false;
+    if (state.lastDay === null) { state.streak = 1; streakGrew = true; }
+    else if (diff === 1) { state.streak++; streakGrew = true; }
+    else if (diff !== 0) { state.streak = 1; streakGrew = true; }
+    state.lastDay = t;
+    if (streakGrew) gains.push('day streak ' + state.streak);
+
+    save(); renderHud(); renderMap();
+
+    var afterRank = rankOf(state.xp);
+    if (afterRank > beforeRank) toast('Promoted to ' + RANKS[afterRank].name, 'good');
+    if (current.kind === 'boss' && deckDone(current.deck)) toast(deckOf(current.deck).name + ' certified', 'good');
+    if (!nextDeckWasOpen && current.deck < 6 && deckOpen(current.deck + 1)) {
+      toast('Deck unlocked: ' + deckOf(current.deck + 1).name, 'good');
+    }
+  } else {
+    gains.push('already repaired \u2014 no XP');
+  }
+  stopTimer();
+  $('timer').hidden = true;
+
+  var nxt = nextUnsolved();
+  var chips = gains.map(function (g) {
+    if (typeof g === 'string') return '<span class="gainchip">' + esc(g) + '</span>';
+    return '<span class="gainchip amber">' + esc(g.t) + '</span>';
+  }).join('');
+  var panel = document.createElement('div');
+  panel.className = 'won';
+  panel.innerHTML = '<h3>' + (current.kind === 'boss' ? 'Boss down \u2014 ' : 'System repaired \u2014 ') + esc(current.title) + '</h3>' +
+    '<div class="gain">' + chips + '</div>' +
+    '<div class="nextrow">' +
+      (nxt ? '<button class="nextbtn" id="goNext">Next: ' + esc(nxt.title) + '</button>' : '') +
+      '<button class="nextbtn ghost" id="goMap">Station map</button>' +
+    '</div>';
+  $('resultsBox').prepend(panel);
+  if (nxt) $('goNext').addEventListener('click', function () { openChallenge(nxt.id); });
+  $('goMap').addEventListener('click', showMap);
+}
+
+/* ---------- timer ---------- */
+function stopTimer() { if (timerId) { clearInterval(timerId); timerId = null; } }
+function startTimer(secs) {
+  stopTimer(); timeLeft = secs; overTime = false;
+  var el = $('timer'); el.hidden = false; el.className = 'timer';
+  paint();
+  timerId = setInterval(function () {
+    timeLeft--;
+    if (timeLeft <= 0) {
+      timeLeft = 0; overTime = true; el.className = 'timer late';
+      el.textContent = 'OVER TIME'; stopTimer();
+      toast('Time bonus gone — the repair still counts. Keep going.', 'warn');
+      return;
+    }
+    paint();
+  }, 1000);
+  function paint() {
+    var m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+    el.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+    if (timeLeft <= 30) el.className = 'timer late';
+  }
+}
+
+/* ---------- views ---------- */
+function showMap() {
+  stopTimer(); stopWorker();
+  if (droneAnim) { clearInterval(droneAnim); droneAnim = null; }
+  current = null;
+  $('viewPlay').hidden = true; $('viewMap').hidden = false;
+  renderHud(); renderMap();
+  window.scrollTo({ top: 0, behavior: 'auto' });
+}
+
+function openChallenge(cid) {
+  var c = byId(cid);
+  if (!c) return;
+  current = c; attempted = false; peeked = false; hintsShown = 0;
+  $('viewMap').hidden = true; $('viewPlay').hidden = false;
+
+  var dk = deckOf(c.deck);
+  $('playKicker').textContent = (c.deck === 0 ? 'Diagnostic' : 'Deck ' + c.deck) + ' · ' + dk.name;
+  $('playTitle').innerHTML = esc(c.title) + (c.kind === 'boss' ? '<span class="bosstag">BOSS</span>' : '');
+  $('playStory').textContent = c.story;
+  $('playBrief').innerHTML = c.brief;
+  $('playConcept').innerHTML = c.concept;
+  $('conceptLabel').textContent = c.kind === 'boss' ? 'Ground rules' : 'What you need';
+  $('hintBox').innerHTML = '';
+  $('hintBtn').disabled = !(c.hints && c.hints.length);
+  $('hintBtn').textContent = (c.hints && c.hints.length) ? 'Hint' : 'No hints on a boss';
+  $('solveBtn').disabled = false;
+  $('solveBtn').textContent = 'Show a solution';
+  $('testCount').textContent = c.tests.length + ' checks';
+  $('edFile').textContent = c.async ? 'uplink.js' : (c.drone ? 'drone.js' : 'console.js');
+  $('code').value = c.starter;
+  syncEditor();
+  $('resultsBox').innerHTML = '<div class="res-empty">' +
+    (c.drone ? 'Write your code, then press Run and watch the camera feed.' : 'Write your repair, then press Run. The station checks it.') +
+    '</div>';
+
+  if (c.drone) {
+    $('dronePanel').hidden = false;
+    $('droneStatus').textContent = 'standing by';
+    animateDrone(c.drone, null);
+  } else {
+    $('dronePanel').hidden = true;
+  }
+
+  if (c.kind === 'boss' && c.time && !isSolved(c.id)) startTimer(c.time);
+  else { stopTimer(); $('timer').hidden = true; }
+
+  window.scrollTo({ top: 0, behavior: 'auto' });
+  setTimeout(function () { $('code').focus(); }, 30);
+}
+
+/* ---------- wiring ---------- */
+function wire() {
+  var ta = $('code');
+  ta.addEventListener('input', syncEditor);
+  ta.addEventListener('scroll', function () { /* scroll is on the container */ });
+  ta.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); run(); return; }
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      var s = ta.selectionStart, en = ta.selectionEnd;
+      ta.value = ta.value.slice(0, s) + '  ' + ta.value.slice(en);
+      ta.selectionStart = ta.selectionEnd = s + 2;
+      syncEditor();
+      return;
+    }
+    if (e.key === 'Enter') {
+      var pos = ta.selectionStart;
+      var lineStart = ta.value.lastIndexOf('\n', pos - 1) + 1;
+      var line = ta.value.slice(lineStart, pos);
+      var indent = (line.match(/^[ \t]*/) || [''])[0];
+      if (/[{([]\s*$/.test(line)) indent += '  ';
+      if (indent) {
+        e.preventDefault();
+        ta.value = ta.value.slice(0, pos) + '\n' + indent + ta.value.slice(ta.selectionEnd);
+        ta.selectionStart = ta.selectionEnd = pos + 1 + indent.length;
+        syncEditor();
+      }
+    }
+  });
+
+  $('runBtn').addEventListener('click', run);
+  $('backBtn').addEventListener('click', showMap);
+  $('continueBtn').addEventListener('click', function () {
+    var n = nextUnsolved(); if (n) openChallenge(n.id);
+  });
+  $('resetCodeBtn').addEventListener('click', function () {
+    if (!current) return;
+    $('code').value = current.starter; syncEditor(); $('code').focus();
+  });
+  $('hintBtn').addEventListener('click', function () {
+    if (!current || !current.hints || hintsShown >= current.hints.length) return;
+    var h = document.createElement('div');
+    h.className = 'hint';
+    h.innerHTML = current.hints[hintsShown];
+    $('hintBox').appendChild(h);
+    hintsShown++;
+    if (hintsShown >= current.hints.length) {
+      $('hintBtn').disabled = true;
+      $('hintBtn').textContent = 'No hints left';
+    }
+  });
+  $('solveBtn').addEventListener('click', function () {
+    if (!current) return;
+    peeked = true;
+    $('code').value = current.solution;
+    syncEditor();
+    $('solveBtn').disabled = true;
+    $('solveBtn').textContent = 'Solution shown';
+    toast('Read it, then run it. First clear is worth 40% XP.', 'warn');
+  });
+
+  $('resetBtn').addEventListener('click', function () { $('sheet').hidden = false; });
+  $('sheetNo').addEventListener('click', function () { $('sheet').hidden = true; });
+  $('sheetYes').addEventListener('click', function () {
+    state = { xp: 0, solved: {}, streak: 0, lastDay: null, combo: 0, bestCombo: 0, updatedAt: 0 };
+    save(); $('sheet').hidden = true; renderHud(); renderMap();
+    toast('Progress cleared. The station is dark again.');
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !$('sheet').hidden) $('sheet').hidden = true;
+  });
+}
+
+/* ---------- boot ---------- */
+function boot() {
+  adopt(loadLocal());
+  wire();
+  renderHud(); renderMap();
+  // durable progress, when the viewer can reach it
+  if (window.claude && typeof window.claude.use === 'function') {
+    window.claude.use('db').then(function (db) {
+      if (!db) return;
+      dbNS = db;
+      return db.doc('progress/main').get().then(function (doc) {
+        var remote = doc && (doc.data || doc);
+        if (remote && typeof remote.updatedAt === 'number' && remote.updatedAt > (state.updatedAt || 0)) {
+          adopt(remote); saveLocal(); renderHud(); renderMap();
+          toast('Progress restored from your saved station log.', 'good');
+        } else if (state.xp > 0 || solvedCount() > 0) {
+          save();
+        }
+      });
+    }).catch(function () {});
+  }
+  if (window.claude && window.claude.hot) {
+    try {
+      window.claude.hot.snapshot(function () { return { code: current ? $('code').value : null, id: current ? current.id : null }; });
+    } catch (e) {}
+  }
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+else boot();
+
+})();
+
+</script>
+
+</body>
+</html>
